@@ -1,11 +1,26 @@
-'use client';
-
+// app/page.tsx
+"use client";
 
 import { useState, useRef } from 'react';
-import { FaBus, FaSearch, FaMapMarkerAlt, FaExchangeAlt, FaClock, FaInfoCircle } from 'react-icons/fa';
+import Head from 'next/head';
+import { FaBus, FaSearch, FaMapMarkerAlt, FaExchangeAlt, FaClock, FaInfoCircle, FaRoute } from 'react-icons/fa';
 import { routeData as busData } from '@/server/busroute';
 
-const locations = [
+interface Bus {
+  id: number;
+  bus: string;
+  route: string;
+  time: string;
+  service: string;
+  fare: string;
+}
+
+interface SuggestionsState {
+  from: boolean;
+  to: boolean;
+}
+
+const locations: string[] = [
   "Gabtoli", "Technical", "Ansar Camp", "Mirpur 1", "Sony Cinema Hall",
   "Mirpur 2", "Mirpur 10", "Mirpur 11", "Purobi", "Kalshi", "ECB Square",
   "MES", "Shewra", "Kuril Bishwa Road", "Jamuna Future Park", "Bashundhara",
@@ -15,17 +30,17 @@ const locations = [
 ];
 
 export default function BusRouteFinder() {
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
-  const [results, setResults] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState({ from: false, to: false });
-  const [expandedCard, setExpandedCard] = useState(null);
-  const searchRef = useRef(null);
+  const [from, setFrom] = useState<string>('');
+  const [to, setTo] = useState<string>('');
+  const [results, setResults] = useState<Bus[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState<SuggestionsState>({ from: false, to: false });
+  const [expandedCard, setExpandedCard] = useState<number | null>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   const handleSearch = () => {
     if (!from || !to) return;
 
-    const filteredResults = busData.filter(item =>
+    const filteredResults: Bus[] = busData.filter(item =>
       item.route.toLowerCase().includes(from.toLowerCase()) &&
       item.route.toLowerCase().includes(to.toLowerCase())
     );
@@ -46,36 +61,51 @@ export default function BusRouteFinder() {
     setTo(from);
   };
 
-  const handleSelectSuggestion = (value, field) => {
+  const handleSelectSuggestion = (value: string, field: keyof SuggestionsState) => {
     if (field === 'from') {
       setFrom(value);
-      setShowSuggestions({ ...showSuggestions, from: false });
+      setShowSuggestions(prev => ({ ...prev, from: false }));
     } else {
       setTo(value);
-      setShowSuggestions({ ...showSuggestions, to: false });
+      setShowSuggestions(prev => ({ ...prev, to: false }));
     }
   };
 
-  const filteredFromSuggestions = locations.filter(loc =>
+  const filteredFromSuggestions: string[] = locations.filter(loc =>
     loc.toLowerCase().includes(from.toLowerCase()) && loc.toLowerCase() !== from.toLowerCase()
   );
 
-  const filteredToSuggestions = locations.filter(loc =>
+  const filteredToSuggestions: string[] = locations.filter(loc =>
     loc.toLowerCase().includes(to.toLowerCase()) && loc.toLowerCase() !== to.toLowerCase()
   );
 
-  const toggleCardExpand = (id) => {
+  const toggleCardExpand = (id: number) => {
     setExpandedCard(expandedCard === id ? null : id);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 font-sans">
+      {/* SEO Head */}
+      <Head>
+        <title>Dhaka Bus Route Finder | Bangladesh Bus Routes & Schedules</title>
+        <meta name="description" content="Find the perfect bus route in Dhaka, Bangladesh. Search bus routes by from and to locations. Get bus schedules, stops, and service information for all Dhaka city buses." />
+        <meta name="keywords" content="dhaka bus route, bangladesh bus route, bus route finder, dhaka bus schedule, bus routes in dhaka, bus service dhaka, public transport dhaka" />
+        <meta name="author" content="Bus Route Finder" />
+        <meta property="og:title" content="Dhaka Bus Route Finder | Bangladesh Bus Routes & Schedules" />
+        <meta property="og:description" content="Find the perfect bus route in Dhaka, Bangladesh. Search bus routes by from and to locations." />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Dhaka Bus Route Finder" />
+        <meta name="twitter:description" content="Find bus routes in Dhaka city with real-time information and schedules" />
+        <link rel="canonical" href="https://busroutefinder.com/dhaka" />
+      </Head>
+
       {/* Thin Header */}
       <header className="bg-blue-800 text-white py-3 shadow-md">
         <div className="container mx-auto px-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <FaBus className="text-xl text-blue-300" />
-            <h1 className="text-xl font-semibold tracking-tight">Bus Route Finder</h1>
+            <h1 className="text-xl font-semibold tracking-tight">Dhaka Bus Route Finder</h1>
           </div>
           <div className="flex items-center">
             <div className="bg-blue-700 rounded-full px-3 py-1 text-xs flex items-center">
@@ -89,9 +119,9 @@ export default function BusRouteFinder() {
       <div className="container mx-auto px-4 py-6">
         {/* Hero Section */}
         <div className="text-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
-            Find Your Perfect Bus Route
-          </h2>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+            Find Bus Routes in Dhaka, Bangladesh
+          </h1>
           <p className="text-gray-600 max-w-md mx-auto text-sm">
             Search bus routes between locations in Dhaka with real-time information
           </p>
@@ -112,8 +142,8 @@ export default function BusRouteFinder() {
                   type="text"
                   value={from}
                   onChange={(e) => setFrom(e.target.value)}
-                  onFocus={() => setShowSuggestions({ ...showSuggestions, from: true })}
-                  onBlur={() => setTimeout(() => setShowSuggestions({ ...showSuggestions, from: false }), 200)}
+                  onFocus={() => setShowSuggestions({ from: true, to: false })}
+                  onBlur={() => setTimeout(() => setShowSuggestions(prev => ({ ...prev, from: false })), 200)}
                   placeholder="Enter starting point"
                   className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 />
@@ -155,8 +185,8 @@ export default function BusRouteFinder() {
                   type="text"
                   value={to}
                   onChange={(e) => setTo(e.target.value)}
-                  onFocus={() => setShowSuggestions({ ...showSuggestions, to: true })}
-                  onBlur={() => setTimeout(() => setShowSuggestions({ ...showSuggestions, to: false }), 200)}
+                  onFocus={() => setShowSuggestions({ from: false, to: true })}
+                  onBlur={() => setTimeout(() => setShowSuggestions(prev => ({ ...prev, to: false })), 200)}
                   placeholder="Enter destination"
                   className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 />
@@ -189,7 +219,7 @@ export default function BusRouteFinder() {
         </div>
 
         {/* Results Section */}
-        <div className='max-w-2xl mx-auto ' ref={searchRef}>
+        <div className='max-w-2xl mx-auto' ref={searchRef}>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold text-gray-800">Available Bus Routes</h2>
             <span className="text-gray-600 text-sm">{results.length} routes found</span>
@@ -202,7 +232,7 @@ export default function BusRouteFinder() {
               <p className="text-gray-600 text-sm">Try different locations or check your spelling</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1  gap-3">
+            <div className="grid grid-cols-1 gap-3">
               {results.map((bus) => (
                 <div
                   key={bus.id}
@@ -227,11 +257,31 @@ export default function BusRouteFinder() {
 
                     <div className="mt-2">
                       <div className="flex items-start">
-                        <FaMapMarkerAlt className="text-red-500 mt-1 mr-1 text-xs flex-shrink-0" />
+                        <FaRoute className="text-red-500 mt-1 mr-1 text-xs flex-shrink-0" />
                         <div className="text-gray-600 text-xs">
                           <span className="font-medium">Route:</span>
                           <div className={`mt-1 text-gray-700 ${expandedCard === bus.id ? '' : 'line-clamp-2'}`}>
-                            {bus.route}
+                            {bus.route.split(' ⇄ ').map((stop, index, arr) => {
+                              const isFrom = stop.toLowerCase().includes(from.toLowerCase());
+                              const isTo = stop.toLowerCase().includes(to.toLowerCase());
+
+                              return (
+                                <span key={index}>
+                                  {isFrom ? (
+                                    <span className="bg-blue-100 text-blue-700 font-medium px-1 rounded">
+                                      {stop}
+                                    </span>
+                                  ) : isTo ? (
+                                    <span className="bg-green-100 text-green-700 font-medium px-1 rounded">
+                                      {stop}
+                                    </span>
+                                  ) : (
+                                    <span>{stop}</span>
+                                  )}
+                                  {index < arr.length - 1 && ' ⇄ '}
+                                </span>
+                              );
+                            })}
                           </div>
                         </div>
                       </div>
@@ -252,6 +302,29 @@ export default function BusRouteFinder() {
             </div>
           )}
         </div>
+
+        {/* SEO Content Section */}
+        <div className="mt-12 bg-white rounded-lg shadow-sm p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Dhaka City Bus Routes Information</h2>
+          <div className="prose prose-sm max-w-none">
+            <p>Find the perfect bus route in Dhaka, Bangladesh with our comprehensive bus route finder. Our service helps you navigate the complex public transportation system in Bangladesh's capital city.</p>
+
+            <h3 className="text-lg font-semibold text-gray-700 mt-4">Popular Bus Routes in Dhaka</h3>
+            <ul className="list-disc pl-5">
+              <li>Mirpur to Gulshan Bus Route</li>
+              <li>Uttara to Motijheel Bus Route</li>
+              <li>Dhanmondi to Airport Bus Route</li>
+              <li>Banani to Farmgate Bus Route</li>
+              <li>Mohakhali to Sadarghat Bus Route</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold text-gray-700 mt-4">Dhaka Bus Services</h3>
+            <p>Dhaka has various bus services including AC buses, non-AC buses, and semi-sitting buses. Major bus operators include BRTC, Anabil Paribahan, Shyamoli Paribahan, and Green Line Paribahan.</p>
+
+            <h3 className="text-lg font-semibold text-gray-700 mt-4">Bus Fare Information</h3>
+            <p>Bus fares in Dhaka typically range from ৳15 to ৳80 depending on the distance and service type. AC buses charge higher fares compared to non-AC buses.</p>
+          </div>
+        </div>
       </div>
 
       {/* Thin Footer */}
@@ -261,12 +334,12 @@ export default function BusRouteFinder() {
             <div className="mb-2 md:mb-0 text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start">
                 <FaBus className="text-xl text-blue-300 mr-2" />
-                <span className="text-sm font-medium">Bus Route Finder</span>
+                <span className="text-sm font-medium">Dhaka Bus Route Finder</span>
               </div>
               <p className="text-gray-400 text-xs mt-1">Find your perfect bus route in seconds</p>
             </div>
             <div className="text-gray-400 text-xs">
-              © {new Date().getFullYear()} Bus Route Finder. All rights reserved.
+              © {new Date().getFullYear()} Dhaka Bus Route Finder. All rights reserved.
             </div>
           </div>
         </div>

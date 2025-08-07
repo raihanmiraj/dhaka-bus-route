@@ -14,8 +14,48 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Raihan Miraj - Music & Songs",
-  description: "Listen to Raihan Miraj's latest songs. Stream original music and covers with high-quality audio.",
+  title: "Dhaka Bus Route Finder | Bangladesh Bus Routes & Schedules",
+  description: "Find the perfect bus route in Dhaka, Bangladesh. Search bus routes by from and to locations. Get bus schedules, stops, and service information for all Dhaka city buses.",
+  keywords: [
+    "dhaka bus route",
+    "bangladesh bus routes",
+    "bus route finder",
+    "dhaka bus schedule",
+    "bus routes in dhaka",
+    "bus service dhaka",
+    "public transport dhaka",       
+    "dhaka city bus",
+    "bus finder bangladesh",
+    "transportation dhaka"
+  ],
+  authors: [{ name: "Bus Route Finder", url: "https://dhakabusroute.vercel.app" }],
+  openGraph: {
+    title: "Dhaka Bus Route Finder | Bangladesh Bus Routes & Schedules",
+    description: "Find the perfect bus route in Dhaka, Bangladesh. Search bus routes by from and to locations.",
+    url: "https://dhakabusroute.vercel.app/dhaka",
+    siteName: "Dhaka Bus Route Finder",
+    images: [
+      {
+        url: "https://dhakabusroute.vercel.app/og-image.png",
+        width: 1200,
+        height: 630,
+      }
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Dhaka Bus Route Finder",
+    description: "Find bus routes in Dhaka city with real-time information and schedules",
+    images: ["https://dhakabusroute.vercel.app/twitter-image.png"],
+  },
+  metadataBase: new URL("https://dhakabusroute.vercel.app"),
+  alternates: {
+    canonical: "/dhaka",
+  },
+  themeColor: "#1e40af",
+  category: "transportation",
 };
 
 export default function RootLayout({
