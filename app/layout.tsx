@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     "dhaka bus schedule",
     "bus routes in dhaka",
     "bus service dhaka",
-    "public transport dhaka",       
+    "public transport dhaka",
     "dhaka city bus",
     "bus finder bangladesh",
     "transportation dhaka"
@@ -65,11 +65,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <title>Dhaka Bus Route Finder | Bangladesh Bus Routes & Schedules</title>
+      <meta name="description" content="Find the perfect bus route in Dhaka, Bangladesh. Search bus routes by from and to locations. Get bus schedules, stops, and service information for all Dhaka city buses." />
+      <meta name="keywords" content="dhaka bus route, bangladesh bus route, bus route finder, dhaka bus schedule, bus routes in dhaka, bus service dhaka, public transport dhaka" />
+
+      <meta name="google-site-verification" content="PHLU7GM99zhqx63oN5oeEJPoexoPvkDdGMbpL3un1V4" />
+      <meta name="author" content="Bus Route Finder" />
+      <meta property="og:title" content="Dhaka Bus Route Finder | Bangladesh Bus Routes & Schedules" />
+      <meta property="og:description" content="Find the perfect bus route in Dhaka, Bangladesh. Search bus routes by from and to locations." />
+      <meta property="og:type" content="website" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content="Dhaka Bus Route Finder" />
+      <meta name="twitter:description" content="Find bus routes in Dhaka city with real-time information and schedules" />
+      <link rel="canonical" href="https://busroutefinder.com/dhaka" />
       <body suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      > 
-          {children}
-       
+      >
+        {children}
+
       </body>
     </html>
   );
