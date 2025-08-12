@@ -3,7 +3,10 @@
 
 import { useState, useRef } from 'react';
 import Head from 'next/head';
-import { FaBus, FaSearch, FaMapMarkerAlt, FaExchangeAlt, FaClock, FaInfoCircle, FaRoute } from 'react-icons/fa';
+import { FaBus, FaSearch, FaMapMarkerAlt, FaExchangeAlt, FaClock, FaInfoCircle, FaRoute , FaGithub, FaTwitter, FaFacebookF } from 'react-icons/fa';
+
+ 
+
 import { routeData as busData } from '@/server/busroute';
 
 interface Bus {
@@ -27,17 +30,17 @@ const locations: string[] = [
   "Nadda", "Notun Bazar", "Bashtola", "Shahjadpur", "Uttar Badda",
   "Badda – Madhya Badda", "Merul", "Rampura Bridge", "Banasree",
   "Demra Staff Quarter", "Shia Masjid", "Adabor", "Shyamoli", "Shishu Mela",
-  "Agargaon", "Zia Uddyan", "Bijoy Sarani", "Jahangir Gate", "Mohakhali", 
+  "Agargaon", "Zia Uddyan", "Bijoy Sarani", "Jahangir Gate", "Mohakhali",
   "Wireless", "Gulshan 1", "Badda Link Road", "Bashtola", "Shukrabad", "Kalabagan",
   "City College", "New Market", "Nilkhet", "Azimpur", "Bakshi Bazar", "Gulistan",
   "Chittagong Road", "Mogbazar", "Nabisco", "Sat Rasta", "Naya Bazar",
   "Babubazar", "Keraniganj", "Mochak", "Malibagh Moor", "Mouchak", "Rampura",
   "Vashantek", "Palashi", "Meghna Ghat", "Sayedabad", "Kamalapur", "Press Club",
-  "High Court", "Matsya Bhaban", "Farmgate", "Shahbag", "Bangla Motor", 
-  "Kawran Bazar", "Bengali College", "Banani", "Chairman Bari", "Sainik Club", 
+  "High Court", "Matsya Bhaban", "Farmgate", "Shahbag", "Bangla Motor",
+  "Kawran Bazar", "Bengali College", "Banani", "Chairman Bari", "Sainik Club",
   "Kakali", "Taltola", "Rayerbag", "Shonir Akhra", "Mugdapara", "Jatrabari",
-  "Kazla", "Rayerbag", "Matuail", "Sign Board", "Kamla Bazar", "Kanchpur", 
-  "Kachukhet", "Rupnagar", "Beribadh", "Birulia", "Ashulia", "Zirabo", 
+  "Kazla", "Rayerbag", "Matuail", "Sign Board", "Kamla Bazar", "Kanchpur",
+  "Kachukhet", "Rupnagar", "Beribadh", "Birulia", "Ashulia", "Zirabo",
   "Fantasy Kingdom", "Chandra", "Nandan Park", "Zirani Bazar", "Mauwa", "Fakirabad"
 ];
 
@@ -342,19 +345,80 @@ export default function BusRouteFinder() {
       </div>
 
       {/* Thin Footer */}
-      <footer className="bg-gray-800 text-white py-4 mt-8 border-t border-gray-700">
+      <footer className="bg-gray-900 text-gray-300 py-8 border-t border-gray-700">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-2 md:mb-0 text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start">
-                <FaBus className="text-xl text-blue-300 mr-2" />
-                <span className="text-sm font-medium">Dhaka Bus Route Finder</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Brand Section */}
+            <div className="flex flex-col items-center md:items-start">
+              <div className="flex items-center mb-4">
+                <FaBus className="text-2xl text-blue-400 mr-2" />
+                <span className="text-xl font-bold text-white">Dhaka Bus Route</span>
               </div>
-              <p className="text-gray-400 text-xs mt-1">Find your perfect bus route in seconds</p>
+              <p className="text-sm text-center md:text-left max-w-xs">
+                Efficient public transportation navigation for Dhaka city
+              </p>
             </div>
-            <div className="text-gray-400 text-xs">
-              © {new Date().getFullYear()} Dhaka Bus Route Finder. All rights reserved.
+
+            {/* Navigation Links */}
+            <div className="flex justify-center">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h3 className="text-white font-semibold mb-3">Resources</h3>
+                  <ul className="space-y-2 text-sm">
+                    <li><a href="#" className="hover:text-white transition-colors">Route Maps</a></li>
+                    <li><a href="#" className="hover:text-white transition-colors">Bus Schedules</a></li>
+                    <li><a href="#" className="hover:text-white transition-colors">Fare Guide</a></li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold mb-3">Company</h3>
+                  <ul className="space-y-2 text-sm">
+                    <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
+                    <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+                    <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                  </ul>
+                </div>
+              </div>
             </div>
+
+            {/* Social & Copyright */}
+            <div className="flex flex-col items-center md:items-end justify-between">
+              <div className="flex space-x-4 mb-4">
+                <a
+                  href="https://github.com/raihanmiraj"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gray-800 p-2 rounded-full hover:bg-blue-600 transition-colors"
+                  aria-label="GitHub Profile"
+                >
+                  <FaGithub className="text-xl" />
+                </a>
+                <a
+                  href="#"
+                  className="bg-gray-800 p-2 rounded-full hover:bg-blue-500 transition-colors"
+                  aria-label="Twitter"
+                >
+                  <FaTwitter className="text-xl" />
+                </a>
+                <a
+                  href="#"
+                  className="bg-gray-800 p-2 rounded-full hover:bg-blue-700 transition-colors"
+                  aria-label="Facebook"
+                >
+                  <FaFacebookF className="text-xl" />
+                </a>
+              </div>
+
+              <div className="text-xs text-center md:text-right">
+                <p>© {new Date().getFullYear()} Dhaka Bus Route Finder. All rights reserved.</p>
+                <p className="mt-1">Designed and built with ❤️ in Dhaka</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Attribution */}
+          <div className="border-t border-gray-800 mt-8 pt-6 text-center text-xs">
+            <p>Data sourced from public transportation authorities | Accuracy not guaranteed</p>
           </div>
         </div>
       </footer>
