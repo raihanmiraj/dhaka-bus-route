@@ -68,7 +68,10 @@ export default function RootLayout({
       <title>Dhaka Bus Route Finder | Bangladesh Bus Routes & Schedules</title>
       <meta name="description" content="Find the perfect bus route in Dhaka, Bangladesh. Search bus routes by from and to locations. Get bus schedules, stops, and service information for all Dhaka city buses." />
       <meta name="keywords" content="dhaka bus route, bangladesh bus route, bus route finder, dhaka bus schedule, bus routes in dhaka, bus service dhaka, public transport dhaka" />
-
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
       <meta name="google-site-verification" content="PHLU7GM99zhqx63oN5oeEJPoexoPvkDdGMbpL3un1V4" />
       <meta name="author" content="Bus Route Finder" />
       <meta property="og:title" content="Dhaka Bus Route Finder | Bangladesh Bus Routes & Schedules" />
