@@ -111,6 +111,7 @@ export default function BusRouteFinder() {
         <meta name="twitter:title" content="Dhaka Bus Route Finder" />
         <meta name="twitter:description" content="Find bus routes in Dhaka city with real-time information and schedules" />
         <link rel="canonical" href="https://busroutefinder.com/dhaka" />
+        <meta name="google-site-verification" content="PHLU7GM99zhqx63oN5oeEJPoexoPvkDdGMbpL3un1V4" />
       </Head>
 
       {/* Thin Header */}
