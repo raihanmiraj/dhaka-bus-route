@@ -26,8 +26,21 @@ const locations: string[] = [
   "MES", "Shewra", "Kuril Bishwa Road", "Jamuna Future Park", "Bashundhara",
   "Nadda", "Notun Bazar", "Bashtola", "Shahjadpur", "Uttar Badda",
   "Badda – Madhya Badda", "Merul", "Rampura Bridge", "Banasree",
-  "Demra Staff Quarter"
+  "Demra Staff Quarter", "Shia Masjid", "Adabor", "Shyamoli", "Shishu Mela",
+  "Agargaon", "Zia Uddyan", "Bijoy Sarani", "Jahangir Gate", "Mohakhali", 
+  "Wireless", "Gulshan 1", "Badda Link Road", "Bashtola", "Shukrabad", "Kalabagan",
+  "City College", "New Market", "Nilkhet", "Azimpur", "Bakshi Bazar", "Gulistan",
+  "Chittagong Road", "Mogbazar", "Nabisco", "Sat Rasta", "Naya Bazar",
+  "Babubazar", "Keraniganj", "Mochak", "Malibagh Moor", "Mouchak", "Rampura",
+  "Vashantek", "Palashi", "Meghna Ghat", "Sayedabad", "Kamalapur", "Press Club",
+  "High Court", "Matsya Bhaban", "Farmgate", "Shahbag", "Bangla Motor", 
+  "Kawran Bazar", "Bengali College", "Banani", "Chairman Bari", "Sainik Club", 
+  "Kakali", "Taltola", "Rayerbag", "Shonir Akhra", "Mugdapara", "Jatrabari",
+  "Kazla", "Rayerbag", "Matuail", "Sign Board", "Kamla Bazar", "Kanchpur", 
+  "Kachukhet", "Rupnagar", "Beribadh", "Birulia", "Ashulia", "Zirabo", 
+  "Fantasy Kingdom", "Chandra", "Nandan Park", "Zirani Bazar", "Mauwa", "Fakirabad"
 ];
+
 
 export default function BusRouteFinder() {
   const [from, setFrom] = useState<string>('');
