@@ -368,7 +368,7 @@ export default function BusRouteFinder() {
                 className="h-auto w-full max-w-sm"
               /> */}
             </div>
-         <div className="flex gap-2">
+         <div className="flex flex-col gap-2 md:flex-row">
              <h1>Dhaka Bus Route Finder</h1>
             <h1>Find Bus Routes in Dhaka, Bangladesh</h1>
          </div>
