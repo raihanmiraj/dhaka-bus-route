@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Dhaka Bus Route Icon - Transparent for Blue Background</title>
+  <desc>High-contrast transparent favicon/icon designed for blue website background.</desc>
+  <rect x="32" y="32" width="448" height="448" rx="100" fill="#FFFFFF"/>
+  <rect x="50" y="50" width="412" height="412" rx="86" fill="#1E3A8A"/>
+  <path d="M256 68C153 68 70 151 70 254c0 138 186 238 186 238s186-100 186-238C442 151 359 68 256 68Z" fill="#2563EB"/>
+  <circle cx="256" cy="234" r="112" fill="#FFFFFF"/>
+  <path d="M158 205c0-34 28-62 62-62h72c34 0 62 28 62 62v94c0 26-21 47-47 47H205c-26 0-47-21-47-47v-94Z" fill="#0F172A"/>
+  <path d="M187 203c0-15 12-27 27-27h84c15 0 27 12 27 27v43H187v-43Z" fill="#DBEAFE"/>
+  <rect x="187" y="269" width="138" height="38" rx="12" fill="#7DD3FC"/>
+  <circle cx="210" cy="346" r="18" fill="#0F172A"/>
+  <circle cx="302" cy="346" r="18" fill="#0F172A"/>
+  <path d="M207 389c36 22 62 22 98 0" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+  <path d="M109 398 C159 364, 204 422, 257 391 S348 369, 402 406" stroke="#86EFAC" stroke-width="20" stroke-linecap="round" fill="none"/>
+  <circle cx="109" cy="398" r="18" fill="#FFFFFF"/>
+  <circle cx="402" cy="406" r="18" fill="#FFFFFF"/>
+</svg>
