@@ -369,8 +369,7 @@ export default function BusRouteFinder() {
               /> */}
             </div>
          <div className="flex flex-col gap-2 md:flex-row">
-             <h1>Dhaka Bus Route Finder</h1>
-            <h1>Find Bus Routes in Dhaka, Bangladesh</h1>
+             <h1>Dhaka Bus Route Finder. Find Bus Routes in Dhaka, Bangladesh</h1>
          </div>
             <h2 className="max-w-2xl text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">
               Search Dhaka bus routes by starting stop and destination.
