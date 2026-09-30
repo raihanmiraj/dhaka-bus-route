@@ -198,8 +198,8 @@ export function MediaPanel({
               });
               const d = await r.json();
               if (!r.ok) throw new Error(d.error);
-              setMessage("Image uploaded. Add alt text when placing it.");
               await load();
+              setMessage("Image uploaded. Add alt text when placing it.");
             } catch (e) {
               setMessage((e as Error).message);
             }
@@ -229,10 +229,10 @@ export function MediaPanel({
                     "PATCH",
                     Object.fromEntries(new FormData(e.currentTarget)),
                   );
+                  await load();
                   setMessage(
                     "Image metadata saved. Existing article text is unchanged until edited and published.",
                   );
-                  await load();
                 } catch (e) {
                   setMessage((e as Error).message);
                 }

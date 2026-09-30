@@ -87,6 +87,7 @@ export default function EditorCanvas({
                   });
                   const d = await r.json();
                   if (!r.ok) throw new Error(d.error);
+                  setTimeout(() => callbacks.current.onChange(), 0);
                   return d;
                 },
                 async uploadByUrl() {

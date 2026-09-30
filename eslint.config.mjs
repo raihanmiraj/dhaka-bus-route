@@ -5,6 +5,7 @@ const config = [
   {
     ignores: [
       ".next/**",
+      ".kilo/**",
       "next-env.d.ts",
       "node_modules/**",
       "flutterapp/**",

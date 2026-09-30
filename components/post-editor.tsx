@@ -25,7 +25,7 @@ export function PostEditor({
     [draft, setDraft] = useState<Draft>(
       initial?.working ?? blankDraft("untitled"),
     ),
-    [dirty, setDirty] = useState(!initial),
+    [dirty, setDirty] = useState(false),
     [state, setState] = useState(initial ? "Saved" : "New article"),
     [error, setError] = useState(""),
     [categories, setCategories] = useState<Term[]>([]),
@@ -39,7 +39,7 @@ export function PostEditor({
     [links, setLinks] = useState<{ label: string; href: string }[]>([]),
     [linkQuery, setLinkQuery] = useState("");
   const editor = useRef<EditorJS | null>(null),
-    saving = useRef(false),
+    saving = useRef<Promise<Post | null> | null>(null),
     dirtyRef = useRef(dirty),
     revision = useRef(0),
     current = useRef(draft),
@@ -87,42 +87,72 @@ export function PostEditor({
     setDirty(true);
     setState("Unsaved changes");
   }
-  async function save() {
-    if (saving.current || !editor.current) return null;
-    saving.current = true;
-    setBusy(true);
-    setState("Saving…");
-    const rev = revision.current;
-    try {
-      const content = await editor.current.save();
-      const working = { ...current.current, content };
-      let p = postRef.current;
-      if (!p) {
-        p = await api("posts", "POST", {});
-        setPost(p);
-        postRef.current = p;
-      }
-      const updated = await api(`posts/${p!._id}/save`, "POST", {
-        version: p!.version,
-        working,
-      });
-      setPost(updated);
-      postRef.current = updated;
-      if (rev === revision.current) {
-        setDraft(updated.working);
-        setDirty(false);
-        setState("Saved");
-      } else setState("Unsaved changes");
-      setError("");
-      return updated as Post;
-    } catch (e) {
-      setState("Not saved");
-      setError((e as Error).message);
-      return null;
-    } finally {
-      saving.current = false;
-      setBusy(false);
+  async function save(): Promise<Post | null> {
+    if (saving.current) {
+      const inflight = await saving.current;
+      if (!dirtyRef.current && inflight) return inflight;
     }
+    if (!editor.current) return null;
+    const run = (async () => {
+      setBusy(true);
+      setState("Saving…");
+      const rev = revision.current;
+      try {
+        const content = await editor.current!.save();
+        let p = postRef.current;
+        const wasNew = !p;
+        if (!p) {
+          p = await api("posts", "POST", {});
+          setPost(p);
+          postRef.current = p;
+        }
+        const working = {
+          ...current.current,
+          slug:
+            current.current.slug === "untitled"
+              ? p!.working.slug
+              : current.current.slug,
+          content,
+        };
+        current.current = working as Draft;
+        const updated = await api(`posts/${p!._id}/save`, "POST", {
+          version: p!.version,
+          working,
+        });
+        setPost(updated);
+        postRef.current = updated;
+        if (wasNew && typeof window !== "undefined") {
+          window.history.replaceState(
+            null,
+            "",
+            `/admin/posts/${updated._id}/edit`,
+          );
+        }
+        if (rev === revision.current) {
+          setDraft(updated.working);
+          setDirty(false);
+          dirtyRef.current = false;
+          setState("Saved");
+        } else {
+          setDraft((d) => ({
+            ...d,
+            slug: d.slug === "untitled" ? updated.working.slug : d.slug,
+          }));
+          setState("Unsaved changes");
+        }
+        setError("");
+        return updated as Post;
+      } catch (e) {
+        setState("Not saved");
+        setError((e as Error).message);
+        return null;
+      } finally {
+        saving.current = null;
+        setBusy(false);
+      }
+    })();
+    saving.current = run;
+    return run;
   }
   useEffect(() => {
     if (!dirty || error) return;
@@ -132,7 +162,7 @@ export function PostEditor({
     return () => clearTimeout(t);
   }, [draft, dirty, error]);
   async function action(name: string) {
-    const p = dirty ? await save() : post;
+    const p = dirtyRef.current || !postRef.current ? await save() : postRef.current;
     if (!p) return;
     setBusy(true);
     try {
@@ -140,6 +170,7 @@ export function PostEditor({
         version: p.version,
       });
       setPost(updated);
+      postRef.current = updated;
       setState(name === "publish" ? "Published" : "Saved");
       setError("");
     } catch (e) {
@@ -352,7 +383,7 @@ export function PostEditor({
                 <input name="name" required />
               </label>
               <label>
-                Slug
+                New term slug
                 <input name="slug" required />
               </label>
               <label>
