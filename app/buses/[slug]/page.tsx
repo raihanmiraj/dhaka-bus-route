@@ -3,6 +3,8 @@ import { metadata as meta, Breadcrumbs } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { RouteOpened } from "@/components/tracking";
+import { RouteMap } from "@/components/route-map";
+
 async function get(params: Promise<{ slug: string }>) {
   const { slug } = await params;
   const b = buses.find((b) => b.slug === slug);
@@ -35,22 +37,33 @@ export default async function Page({
           { name: b.bus, href: `/buses/${b.slug}` },
         ]}
       />
+      <p className="eyebrow">Bus details</p>
       <h1>{b.bus}</h1>
       <RouteOpened id={String(b.id)} />
-      <p>Variant {b.id} · Verification pending · Last checked: unknown</p>
+      <div className="row" style={{ marginBottom: 12 }}>
+        <span className="badge">Variant {b.id}</span>
+        <span className="badge">Verification pending</span>
+        <span className="badge">{b.routeStops.length} stops</span>
+        {b.service ? <span className="badge">{b.service}</span> : null}
+      </div>
       <p>
         Stops below follow source order. Reverse operation, fares, timetables
-        and operating status are unverified.
+        and operating status are unverified. Use the map for an approximate
+        geographic overview.
       </p>
-      <ol className="stack">
+
+      <RouteMap stops={b.routeStops} title={b.bus} />
+
+      <h2>Stops along this route</h2>
+      <ol className="bus-stop-list">
         {b.routeStops.map((s, i) => (
-          <li key={i}>
-            <Link href={`/stops/${slugify(s)}`}>
-              {i + 1}. {s}
-            </Link>
+          <li key={`${s}-${i}`}>
+            <span className="stop-index">{i + 1}</span>
+            <Link href={`/stops/${slugify(s)}`}>{s}</Link>
           </li>
         ))}
       </ol>
+
       <h2>Source references</h2>
       <ul>
         {b.sources

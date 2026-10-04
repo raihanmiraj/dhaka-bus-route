@@ -3,6 +3,7 @@ import { Breadcrumbs, JsonLd } from "@/lib/seo";
 import { siteUrl } from "@/lib/config";
 import { ArticleBody, TableOfContents } from "@/components/article";
 import { ArticleTracking } from "@/components/tracking";
+import { BlogEngagement } from "@/components/blog-engagement";
 import { collections, oid, publicPosts } from "@/lib/cms";
 import { db } from "@/lib/db";
 import { PostCard } from "@/components/ui";
@@ -131,6 +132,7 @@ export default async function Page({
           ))}
         </nav>
       </div>
+      <BlogEngagement slug={p.slug} />
       {related.items.length > 0 && (
         <>
           <h2>Related reading</h2>

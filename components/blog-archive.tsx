@@ -9,12 +9,14 @@ export async function BlogArchive({
   base,
   query,
   filter = {},
+  hideIntro = false,
 }: {
   title: string;
   description: string;
   base: string;
   query: { page?: string };
   filter?: Record<string, unknown>;
+  hideIntro?: boolean;
 }) {
   if (query.page === "1") redirect(base);
   let page;
@@ -33,17 +35,27 @@ export async function BlogArchive({
     .toArray();
   return (
     <>
-      <Breadcrumbs
-        items={[
-          { name: "Blog", href: "/blog" },
-          ...(base !== "/blog" ? [{ name: title, href: base }] : []),
-        ]}
-      />
-      <h1>{title}</h1>
-      <p>{description}</p>
+      {!hideIntro && (
+        <Breadcrumbs
+          items={[
+            { name: "Blog", href: "/blog" },
+            ...(base !== "/blog" ? [{ name: title, href: base }] : []),
+          ]}
+        />
+      )}
+      {!hideIntro && (
+        <>
+          <h1>{title}</h1>
+          <p>{description}</p>
+        </>
+      )}
       <nav className="row" aria-label="Article categories">
         {categories.map((t) => (
-          <a key={String(t._id)} href={`/blog/category/${t.slug}`}>
+          <a
+            key={String(t._id)}
+            className="badge"
+            href={`/blog/category/${t.slug}`}
+          >
             {t.name}
           </a>
         ))}

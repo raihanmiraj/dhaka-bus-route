@@ -2,8 +2,9 @@ import { RecentPosts } from "@/components/recent-posts";
 import Search from "@/components/search";
 import { metadata as pageMeta, JsonLd } from "@/lib/seo";
 import { siteUrl } from "@/lib/config";
-import { curatedJourneys } from "@/lib/routes";
+import { curatedJourneys, resolveStop } from "@/lib/routes";
 import Link from "next/link";
+
 const homeMetadata = pageMeta(
   "Find a bus in Dhaka",
   "Search listed Dhaka bus routes by boarding stop and destination. Browse buses, stops and journey information.",
@@ -24,33 +25,48 @@ export async function generateMetadata({
 export default function Home() {
   return (
     <>
-      <div className="hero">
-        <p className="eyebrow">Your everyday journey, made clearer</p>
-        <h1>Find your bus across Dhaka.</h1>
+      <section className="hero" aria-labelledby="home-title">
+        <p className="eyebrow">Dhaka Bus Routes</p>
+        <h1 id="home-title">Find the right bus across the city.</h1>
         <p>
-          Choose where you’re boarding and where you want to go. Explore the
-          stops along a matching route before you travel.
+          Enter your boarding stop and destination. We match direct routes from
+          the listed dataset so you can see stops before you travel.
         </p>
-      </div>
+      </section>
+
       <Search />
-      <RecentPosts />
-      <section>
-        <h2>Explore listed journeys</h2>
-        <p>
-          These journeys match the source dataset. Operating details have not
-          been independently verified.
-        </p>
+
+      <section style={{ marginTop: 36 }}>
+        <div className="section-head">
+          <div>
+            <p className="eyebrow">Popular journeys</p>
+            <h2>Explore listed journeys</h2>
+            <p>
+              Quick starting points from the source dataset. Operating details
+              are not independently verified.
+            </p>
+          </div>
+          <Link href="/routes">All journeys →</Link>
+        </div>
         <div className="grid">
           {curatedJourneys.map((j) => (
-            <Link className="card" key={j.slug} href={`/routes/${j.slug}`}>
-              {j.slug.replaceAll("-", " ")} →
+            <Link className="card journey-chip" key={j.slug} href={`/routes/${j.slug}`}>
+              <span className="badge">Direct match</span>
+              <strong>
+                {resolveStop(j.from).name} → {resolveStop(j.to).name}
+              </strong>
+              <span className="muted">View matching buses and stops</span>
             </Link>
           ))}
         </div>
       </section>
-      <section className="grid" style={{ marginTop: 32 }}>
+
+      <RecentPosts />
+
+      <section className="grid feature-grid">
         <div className="card">
-          <h2>Know before you board</h2>
+          <p className="eyebrow">Before you board</p>
+          <h2>Know what we show</h2>
           <p>
             Fares, schedules and live service status are not available. Confirm
             with the operator locally.
@@ -58,10 +74,11 @@ export default function Home() {
           <Link href="/data-sources">How we use route data →</Link>
         </div>
         <div className="card">
-          <h2>Guides & updates</h2>
+          <p className="eyebrow">Guides & community</p>
+          <h2>Travel tips & updates</h2>
           <p>
-            Read published articles from our editorial team, or help improve a
-            route listing.
+            Read practical articles, like what helps you, and leave a comment for
+            fellow passengers.
           </p>
           <Link href="/blog">Visit the blog →</Link>
           <p>
@@ -69,6 +86,7 @@ export default function Home() {
           </p>
         </div>
       </section>
+
       <JsonLd
         value={{
           "@context": "https://schema.org",

@@ -10,8 +10,14 @@ export function Button(p: ButtonHTMLAttributes<HTMLButtonElement>) {
 export function Input(p: InputHTMLAttributes<HTMLInputElement>) {
   return <input {...p} className={`input ${p.className ?? ""}`} />;
 }
-export function Card({ children }: { children: ReactNode }) {
-  return <section className="card">{children}</section>;
+export function Card({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return <section className={`card ${className}`}>{children}</section>;
 }
 export function Badge({ children }: { children: ReactNode }) {
   return <span className="badge">{children}</span>;
@@ -70,17 +76,31 @@ export function RouteCard({
   bus: { slug: string; bus: string; routeStops: string[] };
   segment?: string[];
 }) {
+  const stops = segment ?? bus.routeStops;
   return (
-    <Card>
+    <Card className="route-card">
       <Badge>Source-listed route · verification pending</Badge>
       <h3>
         <Link href={`/buses/${bus.slug}`}>{bus.bus}</Link>
       </h3>
-      <p>
-        {segment ? "Selected journey" : "Listed route"} ·{" "}
-        {(segment ?? bus.routeStops).length} stops
-      </p>
-      <StopList stops={segment ?? bus.routeStops} />
+      <div className="route-meta">
+        <span className="badge">
+          {segment ? "Selected journey" : "Full route"}
+        </span>
+        <span className="badge">{stops.length} stops</span>
+        <span className="badge">Map available</span>
+      </div>
+      <StopList stops={stops.slice(0, 8)} />
+      {stops.length > 8 && (
+        <p className="muted">
+          +{stops.length - 8} more stops on the bus page map
+        </p>
+      )}
+      <div className="row">
+        <Link className="button" href={`/buses/${bus.slug}`}>
+          View details & map →
+        </Link>
+      </div>
     </Card>
   );
 }
@@ -90,12 +110,15 @@ export function PostCard({
   post: { slug: string; title: string; excerpt: string; locale: string };
 }) {
   return (
-    <Card>
+    <Card className="post-card">
+      <span className="post-kicker">Guide</span>
       <h2 lang={post.locale}>
         <Link href={`/blog/${post.slug}`}>{post.title}</Link>
       </h2>
       <p lang={post.locale}>{post.excerpt}</p>
-      <Link href={`/blog/${post.slug}`}>Read article →</Link>
+      <Link className="read-more" href={`/blog/${post.slug}`}>
+        Read article →
+      </Link>
     </Card>
   );
 }

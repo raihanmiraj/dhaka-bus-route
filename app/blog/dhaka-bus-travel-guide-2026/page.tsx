@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Breadcrumbs, JsonLd } from "@/lib/seo";
 import { siteUrl } from "@/lib/config";
+import { BlogEngagement } from "@/components/blog-engagement";
 
 const slug = "dhaka-bus-travel-guide-2026";
 const title = "ঢাকায় বাসে যাতায়াতের পূর্ণাঙ্গ গাইড ২০২৬: রুট, স্টপেজ ও স্মার্ট ট্রাভেল টিপস";
@@ -253,6 +254,8 @@ export default function Page() {
           <li><a href="https://dhakabusroutes.com">Dhaka Bus Routes</a></li>
         </ul>
       </div>
+
+      <BlogEngagement slug={slug} />
 
       <JsonLd
         value={{

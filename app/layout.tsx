@@ -1,9 +1,24 @@
 import type { Metadata, Viewport } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { Plus_Jakarta_Sans, Manrope } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { siteUrl } from "@/lib/config";
+import { MobileNav } from "@/components/mobile-nav";
 import "./globals.css";
+
+const sans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const display = Manrope({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: { default: "Dhaka Bus Routes", template: "%s | Dhaka Bus Routes" },
@@ -12,18 +27,21 @@ export const metadata: Metadata = {
   icons: { icon: "/images/favicon-transparent-blue-header.ico" },
   alternates: { types: { "application/rss+xml": "/feed.xml" } },
 };
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: "#1d4ed8",
+  viewportFit: "cover",
 };
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${sans.variable} ${display.variable}`}>
       <body>
         <a className="skip" href="#main">
           Skip to content
@@ -65,6 +83,7 @@ export default function RootLayout({
             </nav>
           </div>
         </footer>
+        <MobileNav />
         <GoogleAnalytics gaId="G-JJNBD39SEE" />
       </body>
     </html>

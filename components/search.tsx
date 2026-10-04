@@ -1,6 +1,7 @@
 "use client";
 import { sendGAEvent } from "@next/third-parties/google";
 import { useEffect, useId, useRef, useState } from "react";
+import { FiSearch, FiX } from "react-icons/fi";
 import { Button, Alert, RouteCard } from "./ui";
 type Stop = { id: string; name: string };
 type Result = {
@@ -17,10 +18,12 @@ export function Combobox({
   label,
   value,
   onChange,
+  placeholder,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  placeholder?: string;
 }) {
   const id = useId();
   const [items, setItems] = useState<Stop[]>([]),
@@ -60,6 +63,7 @@ export function Combobox({
         }
         autoComplete="off"
         value={value}
+        placeholder={placeholder}
         onFocus={() => setOpen(true)}
         onBlur={() => window.setTimeout(() => setOpen(false), 160)}
         onChange={(e) => {
@@ -113,6 +117,7 @@ export default function Search() {
     [page, setPage] = useState(1),
     [total, setTotal] = useState(0);
   const request = useRef(0);
+  const formRef = useRef<HTMLFormElement>(null);
   const reset = () => {
     request.current++;
     setItems([]);
@@ -125,6 +130,13 @@ export default function Search() {
     const p = new URLSearchParams(location.search);
     setFrom(p.get("from") ?? "");
     setTo(p.get("to") ?? "");
+  }, []);
+  useEffect(() => {
+    if (location.hash === "#search") {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const first = formRef.current?.querySelector("input");
+      first?.focus();
+    }
   }, []);
   async function search(n = 1) {
     const seq = ++request.current;
@@ -161,18 +173,25 @@ export default function Search() {
     }
   }
   return (
-    <div className="stack">
+    <div className="stack" id="search">
       <form
-        className="card"
+        ref={formRef}
+        className="card search-panel"
         onSubmit={(e) => {
           e.preventDefault();
           void search();
         }}
       >
+        <p className="eyebrow">Route finder</p>
+        <h2>Where are you going?</h2>
+        <p className="muted" style={{ marginTop: 0 }}>
+          Choose a specific stop — for example Mirpur 10 or Farmgate.
+        </p>
         <div className="search-grid">
           <Combobox
-            label="Boarding stop"
+            label="From"
             value={from}
+            placeholder="Boarding stop"
             onChange={(v) => {
               reset();
               setFrom(v);
@@ -191,8 +210,9 @@ export default function Search() {
             ⇄ Swap
           </Button>
           <Combobox
-            label="Destination stop"
+            label="To"
             value={to}
+            placeholder="Destination stop"
             onChange={(v) => {
               reset();
               setTo(v);
@@ -201,7 +221,8 @@ export default function Search() {
         </div>
         <div className="row" style={{ marginTop: 20 }}>
           <Button disabled={loading || !from || !to}>
-            {loading ? "Searching…" : "Find buses →"}
+            <FiSearch aria-hidden style={{ marginRight: 8 }} />
+            {loading ? "Searching…" : "Find matching buses"}
           </Button>
           <Button
             type="button"
@@ -213,12 +234,11 @@ export default function Search() {
               history.replaceState(null, "", "/");
             }}
           >
+            <FiX aria-hidden style={{ marginRight: 6 }} />
             Clear
           </Button>
         </div>
-        <p className="muted">
-          English or বাংলা · Choose a specific stop, such as Mirpur 10.
-        </p>
+        <p className="muted">English or বাংলা spellings are both accepted.</p>
       </form>
       {message && <Alert>{message}</Alert>}
       <div className="stack" aria-live="polite" aria-busy={loading}>
