@@ -70,17 +70,33 @@ export default function RootLayout({
           {children}
         </main>
         <footer className="site-footer">
-          <div className="wrap">
-            <strong>Dhaka Bus Routes</strong>
-            <p>
-              Plan your journey. Confirm boarding and service details locally.
-            </p>
+          <div className="wrap footer-grid">
+            <div className="footer-brand">
+              <strong>Dhaka Bus Routes</strong>
+              <p>
+                Plan your journey across Dhaka. Confirm boarding and service
+                details locally.
+              </p>
+            </div>
+            <nav aria-label="Explore">
+              <h2>Explore</h2>
+              <Link href="/buses">Buses</Link>
+              <Link href="/routes">Routes</Link>
+              <Link href="/stops">Stops</Link>
+              <Link href="/blog">Blog</Link>
+            </nav>
             <nav aria-label="Footer">
+              <h2>About</h2>
+              <Link href="/about">About us</Link>
               <Link href="/data-sources">Data & sources</Link>
               <Link href="/report-route">Report a correction</Link>
               <Link href="/feed.xml">RSS</Link>
               <Link href="/admin">Editorial sign in</Link>
             </nav>
+          </div>
+          <div className="wrap footer-bottom">
+            © {new Date().getFullYear()} Dhaka Bus Routes · Not an official
+            transport authority
           </div>
         </footer>
         <MobileNav />

@@ -1,7 +1,7 @@
 "use client";
 import { sendGAEvent } from "@next/third-parties/google";
-import { useEffect, useId, useRef, useState } from "react";
-import { FiSearch, FiX } from "react-icons/fi";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { FiArrowRight, FiRepeat, FiSearch, FiX } from "react-icons/fi";
 import { Button, Alert, RouteCard } from "./ui";
 type Stop = { id: string; name: string };
 type Result = {
@@ -19,11 +19,13 @@ export function Combobox({
   value,
   onChange,
   placeholder,
+  marker,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  marker?: "start" | "end";
 }) {
   const id = useId();
   const [items, setItems] = useState<Stop[]>([]),
@@ -52,42 +54,44 @@ export function Combobox({
   return (
     <div className="combobox">
       <label htmlFor={id}>{label}</label>
-      <input
-        id={id}
-        role="combobox"
-        aria-autocomplete="list"
-        aria-expanded={open}
-        aria-controls={`${id}-list`}
-        aria-activedescendant={
-          open && active >= 0 ? `${id}-${active}` : undefined
-        }
-        autoComplete="off"
-        value={value}
-        placeholder={placeholder}
-        onFocus={() => setOpen(true)}
-        onBlur={() => window.setTimeout(() => setOpen(false), 160)}
-        onChange={(e) => {
-          onChange(e.target.value);
-          setOpen(true);
-          setActive(-1);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "ArrowDown") {
-            e.preventDefault();
+      <div className={`field${marker ? ` field-${marker}` : ""}`}>
+        <input
+          id={id}
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={open}
+          aria-controls={`${id}-list`}
+          aria-activedescendant={
+            open && active >= 0 ? `${id}-${active}` : undefined
+          }
+          autoComplete="off"
+          value={value}
+          placeholder={placeholder}
+          onFocus={() => setOpen(true)}
+          onBlur={() => window.setTimeout(() => setOpen(false), 160)}
+          onChange={(e) => {
+            onChange(e.target.value);
             setOpen(true);
-            setActive((a) => Math.min(a + 1, items.length - 1));
-          }
-          if (e.key === "ArrowUp") {
-            e.preventDefault();
-            setActive((a) => Math.max(0, a - 1));
-          }
-          if (e.key === "Escape") setOpen(false);
-          if (e.key === "Enter" && open && active >= 0 && items[active]) {
-            e.preventDefault();
-            select(items[active]);
-          }
-        }}
-      />
+            setActive(-1);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              setOpen(true);
+              setActive((a) => Math.min(a + 1, items.length - 1));
+            }
+            if (e.key === "ArrowUp") {
+              e.preventDefault();
+              setActive((a) => Math.max(0, a - 1));
+            }
+            if (e.key === "Escape") setOpen(false);
+            if (e.key === "Enter" && open && active >= 0 && items[active]) {
+              e.preventDefault();
+              select(items[active]);
+            }
+          }}
+        />
+      </div>
       {open && (
         <div role="listbox" id={`${id}-list`} className="suggestions">
           {items.map((s, i) => (
@@ -108,7 +112,15 @@ export function Combobox({
     </div>
   );
 }
-export default function Search() {
+export default function Search({
+  intro,
+  aside,
+  popular = [],
+}: {
+  intro?: ReactNode;
+  aside?: ReactNode;
+  popular?: string[];
+}) {
   const [from, setFrom] = useState(""),
     [to, setTo] = useState(""),
     [items, setItems] = useState<Result[]>([]),
@@ -118,6 +130,7 @@ export default function Search() {
     [total, setTotal] = useState(0);
   const request = useRef(0);
   const formRef = useRef<HTMLFormElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
   const reset = () => {
     request.current++;
     setItems([]);
@@ -126,30 +139,18 @@ export default function Search() {
     setLoading(false);
     setPage(1);
   };
-  useEffect(() => {
-    const p = new URLSearchParams(location.search);
-    setFrom(p.get("from") ?? "");
-    setTo(p.get("to") ?? "");
-  }, []);
-  useEffect(() => {
-    if (location.hash === "#search") {
-      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      const first = formRef.current?.querySelector("input");
-      first?.focus();
-    }
-  }, []);
-  async function search(n = 1) {
+  async function search(n = 1, f = from, t = to) {
     const seq = ++request.current;
     setLoading(true);
     setMessage("");
     try {
       const r = await fetch(
-        `/api/search?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&page=${n}`,
+        `/api/search?from=${encodeURIComponent(f)}&to=${encodeURIComponent(t)}&page=${n}`,
       );
       const d = await r.json();
       if (seq !== request.current) return;
       if (!r.ok) throw new Error(d.error);
-      setItems(n === 1 ? d.items : [...items, ...d.items]);
+      setItems((prev) => (n === 1 ? d.items : [...prev, ...d.items]));
       setTotal(d.total);
       setPage(n);
       setMessage(
@@ -163,6 +164,13 @@ export default function Search() {
         to: d.to,
         count: d.total,
       });
+      if (n === 1)
+        requestAnimationFrame(() =>
+          resultsRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          }),
+        );
     } catch (e) {
       if (seq === request.current)
         setMessage(
@@ -172,85 +180,127 @@ export default function Search() {
       if (seq === request.current) setLoading(false);
     }
   }
+  useEffect(() => {
+    const p = new URLSearchParams(location.search);
+    const f = p.get("from") ?? "",
+      t = p.get("to") ?? "";
+    setFrom(f);
+    setTo(t);
+    if (f && t) void search(1, f, t);
+    else if (location.hash === "#search")
+      formRef.current?.querySelector("input")?.focus();
+  }, []);
+  const pick = (name: string) => {
+    reset();
+    if (!from || (from && to)) {
+      setFrom(name);
+      if (from && to) setTo("");
+    } else if (name !== from) setTo(name);
+  };
   return (
-    <div className="stack" id="search">
-      <form
-        ref={formRef}
-        className="card search-panel"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void search();
-        }}
-      >
-        <p className="eyebrow">Route finder</p>
-        <h2>Where are you going?</h2>
-        <p className="muted" style={{ marginTop: 0 }}>
-          Choose a specific stop — for example Mirpur 10 or Farmgate.
-        </p>
-        <div className="search-grid">
-          <Combobox
-            label="From"
-            value={from}
-            placeholder="Boarding stop"
-            onChange={(v) => {
-              reset();
-              setFrom(v);
-            }}
-          />
-          <Button
-            type="button"
-            className="secondary"
-            onClick={() => {
-              reset();
-              setFrom(to);
-              setTo(from);
-            }}
-            aria-label="Swap stops"
-          >
-            ⇄ Swap
-          </Button>
-          <Combobox
-            label="To"
-            value={to}
-            placeholder="Destination stop"
-            onChange={(v) => {
-              reset();
-              setTo(v);
-            }}
-          />
+    <>
+      <section className="home-hero" aria-labelledby="home-title" id="search">
+        <div className="home-hero-copy">{intro}</div>
+        {aside}
+        <form
+          ref={formRef}
+          className="finder"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void search();
+          }}
+        >
+          <div className="finder-grid">
+            <Combobox
+              label="Boarding stop"
+              value={from}
+              marker="start"
+              placeholder="e.g. Mirpur 10"
+              onChange={(v) => {
+                reset();
+                setFrom(v);
+              }}
+            />
+            <button
+              type="button"
+              className="swap-btn"
+              onClick={() => {
+                reset();
+                setFrom(to);
+                setTo(from);
+              }}
+              aria-label="Swap stops"
+            >
+              <FiRepeat aria-hidden size={18} />
+            </button>
+            <Combobox
+              label="Destination stop"
+              value={to}
+              marker="end"
+              placeholder="e.g. Farmgate"
+              onChange={(v) => {
+                reset();
+                setTo(v);
+              }}
+            />
+            <Button className="finder-submit" disabled={loading || !from || !to}>
+              <FiSearch aria-hidden size={18} />
+              {loading ? "Searching…" : "Find buses"}
+            </Button>
+          </div>
+          <div className="finder-foot">
+            {popular.length > 0 && (
+              <div className="quick-picks" aria-label="Popular stops">
+                <span>Popular:</span>
+                {popular.map((s) => (
+                  <button type="button" key={s} onClick={() => pick(s)}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
+            {(from || to) && (
+              <button
+                type="button"
+                className="finder-clear"
+                onClick={() => {
+                  reset();
+                  setFrom("");
+                  setTo("");
+                  history.replaceState(null, "", "/");
+                }}
+              >
+                <FiX aria-hidden /> Clear
+              </button>
+            )}
+          </div>
+        </form>
+      </section>
+      <div className="results" ref={resultsRef}>
+        {message && <Alert>{message}</Alert>}
+        {items.length > 0 && (
+          <div className="results-head">
+            <h2>Matching buses</h2>
+            <p className="muted">
+              {from} <FiArrowRight aria-hidden /> {to}
+            </p>
+          </div>
+        )}
+        <div className="results-grid" aria-live="polite" aria-busy={loading}>
+          {items.map((x) => (
+            <RouteCard key={x.bus.slug} bus={x.bus} segment={x.segment} />
+          ))}
         </div>
-        <div className="row" style={{ marginTop: 20 }}>
-          <Button disabled={loading || !from || !to}>
-            <FiSearch aria-hidden style={{ marginRight: 8 }} />
-            {loading ? "Searching…" : "Find matching buses"}
-          </Button>
+        {items.length < total && (
           <Button
-            type="button"
             className="secondary"
-            onClick={() => {
-              reset();
-              setFrom("");
-              setTo("");
-              history.replaceState(null, "", "/");
-            }}
+            disabled={loading}
+            onClick={() => search(page + 1)}
           >
-            <FiX aria-hidden style={{ marginRight: 6 }} />
-            Clear
+            Load more routes
           </Button>
-        </div>
-        <p className="muted">English or বাংলা spellings are both accepted.</p>
-      </form>
-      {message && <Alert>{message}</Alert>}
-      <div className="stack" aria-live="polite" aria-busy={loading}>
-        {items.map((x) => (
-          <RouteCard key={x.bus.slug} bus={x.bus} segment={x.segment} />
-        ))}
+        )}
       </div>
-      {items.length < total && (
-        <Button disabled={loading} onClick={() => search(page + 1)}>
-          Load more routes
-        </Button>
-      )}
-    </div>
+    </>
   );
 }
