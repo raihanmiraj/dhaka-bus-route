@@ -32,7 +32,9 @@ export default function Page() {
         Search analytics use selected stop IDs and aggregate result counts. Do
         not submit personal travel histories or private contact details in
         correction text. This site uses Google Analytics; it does not request
-        precise GPS locations.
+        precise GPS locations. Full details are in the{" "}
+        <a href="/privacy">Privacy Policy</a> and{" "}
+        <a href="/terms">Terms of Use</a>.
       </p>
     </article>
   );

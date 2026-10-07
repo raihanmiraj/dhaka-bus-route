@@ -89,14 +89,24 @@ export default function RootLayout({
               <h2>About</h2>
               <Link href="/about">About us</Link>
               <Link href="/data-sources">Data & sources</Link>
+              <Link href="/privacy">Privacy</Link>
+              <Link href="/terms">Terms</Link>
               <Link href="/report-route">Report a correction</Link>
+              <Link href="/sitemap.xml">Sitemap</Link>
               <Link href="/feed.xml">RSS</Link>
               <Link href="/admin">Editorial sign in</Link>
             </nav>
           </div>
           <div className="wrap footer-bottom">
-            © {new Date().getFullYear()} Dhaka Bus Routes · Not an official
-            transport authority
+            © {new Date().getFullYear()} Dhaka Bus Routes · Built by{" "}
+            <a
+              href="https://raihanmiraj.com/"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Raihan Miraj
+            </a>{" "}
+            · Not an official transport authority
           </div>
         </footer>
         <MobileNav />

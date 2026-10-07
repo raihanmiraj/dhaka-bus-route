@@ -508,6 +508,45 @@ textarea {
   border-radius: 12px;
 }
 
+.about-developer {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin: 28px 0;
+  padding: 16px 18px;
+  background: #eff6ff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.about-avatar {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 999px;
+  flex-shrink: 0;
+  border: 3px solid #fff;
+  box-shadow: var(--shadow);
+}
+
+.about-developer figcaption {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.about-developer figcaption strong {
+  color: var(--ink);
+  font-size: 1.15rem;
+}
+
+@media (max-width: 560px) {
+  .about-developer {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
 .table-scroll {
   overflow: auto;
   max-width: 100%;
