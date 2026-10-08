@@ -5,6 +5,9 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { db, client } from "./db";
 import { authSecret, siteUrl } from "./config";
+import { HttpError } from "./errors";
+import { apiKeyActor } from "./api-keys";
+export { HttpError } from "./errors";
 let instance: Awaited<ReturnType<typeof createAuth>> | undefined;
 async function createAuth() {
   return betterAuth({
@@ -46,22 +49,23 @@ export async function auth() {
   if (!instance) instance = await createAuth();
   return instance;
 }
-export class HttpError extends Error {
-  constructor(
-    public status: number,
-    message: string,
-  ) {
-    super(message);
+export type Actor = {
+  id: string;
+  name: string;
+  role: "admin" | "editor";
+  authType?: "session" | "api-key";
+};
+export async function actor(h: Headers, allowApiKey = true): Promise<Actor> {
+  if (allowApiKey) {
+    const key = await apiKeyActor(h);
+    if (key) return key;
   }
-}
-export type Actor = { id: string; name: string; role: "admin" | "editor" };
-export async function actor(h: Headers): Promise<Actor> {
   const s = await (await auth()).api.getSession({ headers: h });
   if (!s) throw new HttpError(401, "Sign in required.");
   const role = (s.user as typeof s.user & { role?: string }).role;
   if (role !== "admin" && role !== "editor")
     throw new HttpError(403, "Editorial access required.");
-  return { id: s.user.id, name: s.user.name, role };
+  return { id: s.user.id, name: s.user.name, role, authType: "session" };
 }
 export function administrator(a: Actor) {
   if (a.role !== "admin")
@@ -70,7 +74,7 @@ export function administrator(a: Actor) {
 export async function pageActor(admin = false) {
   let a;
   try {
-    a = await actor(await headers());
+    a = await actor(await headers(), false);
   } catch (e) {
     if (e instanceof HttpError && e.status === 401) redirect("/admin/login");
     throw e;
@@ -81,4 +85,8 @@ export async function pageActor(admin = false) {
 export function sameOrigin(req: Request) {
   if (req.headers.get("origin") !== siteUrl())
     throw new HttpError(403, "Cross-site request rejected.");
+}
+export function mutationOrigin(req: Request, a: Actor) {
+  // Only a successfully authenticated key can bypass session CSRF checks.
+  if (a.authType !== "api-key") sameOrigin(req);
 }

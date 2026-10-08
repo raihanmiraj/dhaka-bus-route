@@ -32,4 +32,5 @@ export async function setupIndexes() {
     .createIndex({ postId: 1, version: -1 }, { unique: true });
   await d.collection("media").createIndex({ createdAt: -1 });
   await d.collection("corrections").createIndex({ status: 1, createdAt: -1 });
+  await d.collection("adminApiKeys").createIndex({ userId: 1, createdAt: -1 });
 }

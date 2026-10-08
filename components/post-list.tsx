@@ -1,10 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { api } from "./admin-api";
 import { Alert, Badge, Button } from "./ui";
 export function PostList() {
+  const params = useSearchParams();
   const [q, setQ] = useState(""),
-    [status, setStatus] = useState(""),
+    [status, setStatus] = useState(params.get("status") ?? ""),
     [category, setCategory] = useState(""),
     [page, setPage] = useState(1),
     [items, setItems] = useState<

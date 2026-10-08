@@ -1,13 +1,13 @@
 import { throttle } from "@/lib/abuse";
 import { NextResponse } from "next/server";
-import { actor, sameOrigin, HttpError } from "@/lib/auth";
+import { actor, mutationOrigin, HttpError } from "@/lib/auth";
 import { failure, boundedBody } from "@/lib/http";
 import { upload } from "@/lib/storage";
 export const runtime = "nodejs";
 export async function POST(req: Request) {
   try {
     const a = await actor(req.headers);
-    sameOrigin(req);
+    mutationOrigin(req, a);
     await throttle(req, "upload", 30);
     if (Number(req.headers.get("content-length") ?? 0) > 3300000)
       throw new HttpError(413, "Upload limit is 3 MB");

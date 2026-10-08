@@ -84,6 +84,13 @@ try {
       await database
         .collection("session")
         .deleteMany({ userId: id }, { session });
+      await database
+        .collection("adminApiKeys")
+        .updateMany(
+          { userId: id.toHexString(), revokedAt: null },
+          { $set: { revokedAt: now } },
+          { session },
+        );
     } else {
       await database.collection("user").insertOne(
         {

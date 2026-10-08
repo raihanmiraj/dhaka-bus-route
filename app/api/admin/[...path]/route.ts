@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { actor, administrator, sameOrigin, HttpError } from "@/lib/auth";
+import { actor, administrator, mutationOrigin, HttpError } from "@/lib/auth";
 import { failure, json } from "@/lib/http";
 import {
   collections,
@@ -144,7 +144,7 @@ async function handle(
         },
       });
     }
-    sameOrigin(req);
+    mutationOrigin(req, a);
     const body = await json(req);
     let data: unknown;
     if (kind === "posts") {
