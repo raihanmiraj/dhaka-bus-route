@@ -516,6 +516,7 @@ body:has(.admin-area) > main.wrap {
   color: #a4c3ff;
 }
 .admin-login-story h2 {
+  color: white;
   font-size: clamp(40px, 5vw, 64px);
   line-height: 1.16;
   margin: 20px 0;
@@ -612,7 +613,7 @@ body:has(.admin-area) > main.wrap {
 .admin-login-footer {
   font-size: 10px;
   margin-top: 64px;
-  color: #99a7ba !important;
+  color: #64748b !important;
 }
 @media (max-width: 1100px) {
   .admin-stats {

@@ -48,6 +48,7 @@ export function Login() {
         <span className="admin-password-field">
           <input
             type={visible ? "text" : "password"}
+            aria-label="Password"
             name="password"
             autoComplete="current-password"
             required
