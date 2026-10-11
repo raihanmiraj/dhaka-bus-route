@@ -1,5 +1,5 @@
 import { buses } from "@/lib/routes";
-import { metadata as meta, Breadcrumbs } from "@/lib/seo";
+import { paginatedMetadata as meta, Breadcrumbs } from "@/lib/seo";
 import { RouteCard, Pagination } from "@/components/ui";
 import { pageNumber } from "@/lib/pagination";
 import { notFound, redirect } from "next/navigation";
@@ -12,7 +12,8 @@ export async function generateMetadata({
   return meta(
     "Bus directory",
     "Browse source-listed Dhaka bus routes and their stops.",
-    `/buses${p.page && p.page !== "1" ? `?page=${p.page}` : ""}`,
+    "/buses",
+    p.page,
   );
 }
 export default async function Page({

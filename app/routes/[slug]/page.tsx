@@ -2,9 +2,11 @@ import { curatedJourneys, journeys, resolveStop } from "@/lib/routes";
 import { metadata as meta, Breadcrumbs } from "@/lib/seo";
 import { RouteCard } from "@/components/ui";
 import { notFound } from "next/navigation";
+import { decodeSlug } from "@/lib/url";
 async function get(p: Promise<{ slug: string }>) {
   const { slug } = await p;
-  const j = curatedJourneys.find((j) => j.slug === slug);
+  const decoded = decodeSlug(slug);
+  const j = curatedJourneys.find((j) => j.slug === decoded);
   if (!j) notFound();
   return j;
 }
@@ -16,7 +18,7 @@ export async function generateMetadata({
   const j = await get(params);
   return meta(
     `${resolveStop(j.from).name} to ${resolveStop(j.to).name}`,
-    "Compare source-listed direct routes by stop count.",
+    `Compare ${journeys(j.from, j.to).length} listed direct bus routes from ${resolveStop(j.from).name} to ${resolveStop(j.to).name} in Dhaka. View stops and route maps; confirm boarding and service locally.`,
     `/routes/${j.slug}`,
   );
 }

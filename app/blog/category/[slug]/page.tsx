@@ -1,6 +1,6 @@
 import { archive } from "@/lib/archive";
 import { BlogArchive } from "@/components/blog-archive";
-import { metadata as meta } from "@/lib/seo";
+import { paginatedMetadata as meta } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 type Props = {
@@ -13,7 +13,8 @@ export async function generateMetadata({ params, searchParams }: Props) {
   return meta(
     t.seoTitle || t.name,
     t.seoDescription || t.description,
-    `/blog/category/${t.slug}${q.page && q.page !== "1" ? `?page=${q.page}` : ""}`,
+    `/blog/category/${t.slug}`,
+    q.page,
     index,
   );
 }

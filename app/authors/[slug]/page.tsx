@@ -1,12 +1,13 @@
 import { collections, publicPosts } from "@/lib/cms";
 import { notFound } from "next/navigation";
 import { BlogArchive } from "@/components/blog-archive";
-import { metadata as meta } from "@/lib/seo";
+import { paginatedMetadata as meta } from "@/lib/seo";
+import { decodeSlug } from "@/lib/url";
 export const dynamic = "force-dynamic";
 async function get(p: Promise<{ slug: string }>) {
-  const a = await (
-    await collections()
-  ).authors.findOne({ slug: (await p).slug });
+  const slug = decodeSlug((await p).slug);
+  if (!slug) notFound();
+  const a = await (await collections()).authors.findOne({ slug });
   if (!a) notFound();
   return a;
 }
@@ -20,12 +21,7 @@ export async function generateMetadata({
   const a = await get(params);
   const q = await searchParams;
   const { total } = await publicPosts({ "published.authorId": a.userId });
-  return meta(
-    a.name,
-    a.bio,
-    `/authors/${a.slug}${q.page && q.page !== "1" ? `?page=${q.page}` : ""}`,
-    total > 0,
-  );
+  return meta(a.name, a.bio, `/authors/${a.slug}`, q.page, total > 0);
 }
 export default async function Page({
   params,

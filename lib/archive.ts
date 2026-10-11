@@ -1,7 +1,11 @@
 import "server-only";
 import { collections, publicPosts } from "./cms";
 import { notFound } from "next/navigation";
+import { decodeSlug } from "./url";
 export async function archive(kind: "categories" | "tags", slug: string) {
+  const decoded = decodeSlug(slug);
+  if (!decoded) notFound();
+  slug = decoded;
   const t = await (await collections())[kind].findOne({ slug });
   if (!t) notFound();
   const filter = {

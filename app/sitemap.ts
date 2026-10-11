@@ -3,6 +3,7 @@ import { siteUrl } from "@/lib/config";
 import { buses, stops, curatedJourneys } from "@/lib/routes";
 import { collections } from "@/lib/cms";
 import { mediaIds, type Snapshot } from "@/lib/content";
+import { featuredGuide } from "@/lib/featured-guide";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -17,7 +18,7 @@ const BRAND_IMAGES = [
 ];
 
 function abs(base: string, path: string) {
-  return path.startsWith("http") ? path : base + path;
+  return new URL(path, base).href;
 }
 
 function entry(
@@ -29,9 +30,7 @@ function entry(
   return {
     url: abs(base, path),
     ...rest,
-    ...(images?.length
-      ? { images: images.map((src) => abs(base, src)) }
-      : {}),
+    ...(images?.length ? { images: images.map((src) => abs(base, src)) } : {}),
   };
 }
 
@@ -41,57 +40,48 @@ function postImages(published: Snapshot): string[] {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
-  const now = new Date();
   const result: MetadataRoute.Sitemap = [
     entry(base, "/", {
-      lastModified: now,
       changeFrequency: "daily",
       priority: 1,
       images: BRAND_IMAGES,
     }),
     entry(base, "/buses", {
-      lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
     }),
     entry(base, "/stops", {
-      lastModified: now,
       changeFrequency: "weekly",
       priority: 0.8,
     }),
     entry(base, "/routes", {
-      lastModified: now,
       changeFrequency: "weekly",
       priority: 0.8,
     }),
     entry(base, "/blog", {
-      lastModified: now,
       changeFrequency: "daily",
       priority: 0.9,
     }),
-    entry(base, "/blog/dhaka-bus-travel-guide-2026", {
+    entry(base, `/blog/${featuredGuide.slug}`, {
+      lastModified: featuredGuide.modifiedAt,
       changeFrequency: "monthly",
       priority: 0.7,
-      images: ["/images/featured-image.png"],
+      images: [featuredGuide.image],
     }),
     entry(base, "/about", {
-      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.6,
       images: ["/images/me.jpg", ...BRAND_IMAGES.slice(0, 2)],
     }),
     entry(base, "/privacy", {
-      lastModified: now,
       changeFrequency: "yearly",
       priority: 0.3,
     }),
     entry(base, "/terms", {
-      lastModified: now,
       changeFrequency: "yearly",
       priority: 0.3,
     }),
     entry(base, "/data-sources", {
-      lastModified: now,
       changeFrequency: "yearly",
       priority: 0.4,
     }),
@@ -133,7 +123,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .toArray();
 
   for (const p of posts) {
-    if (!p.published) continue;
+    // This slug is served by a static article, so its metadata takes precedence.
+    if (!p.published || p.published.slug === featuredGuide.slug) continue;
     result.push(
       entry(base, `/blog/${p.published.slug}`, {
         lastModified: p.published.publicModifiedAt,

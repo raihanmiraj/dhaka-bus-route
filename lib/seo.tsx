@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { siteUrl } from "./config";
+import { pageNumber } from "./pagination";
+import { notFound } from "next/navigation";
 export function metadata(
   title: string,
   description: string,
@@ -25,6 +27,26 @@ export function metadata(
       images: ["/images/featured-image.png"],
     },
   };
+}
+export function paginatedMetadata(
+  title: string,
+  description: string,
+  path: string,
+  value: unknown,
+  index = true,
+): Metadata {
+  let page;
+  try {
+    page = pageNumber(value);
+  } catch {
+    notFound();
+  }
+  return metadata(
+    page > 1 ? `${title} — Page ${page}` : title,
+    page > 1 ? `${description} Page ${page}.` : description,
+    page > 1 ? `${path}?page=${page}` : path,
+    index,
+  );
 }
 export function JsonLd({ value }: { value: unknown }) {
   return (

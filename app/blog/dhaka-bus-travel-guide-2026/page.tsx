@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Breadcrumbs, JsonLd } from "@/lib/seo";
 import { siteUrl } from "@/lib/config";
 import { BlogEngagement } from "@/components/blog-engagement";
+import { featuredGuide } from "@/lib/featured-guide";
 
-const slug = "dhaka-bus-travel-guide-2026";
+const { slug } = featuredGuide;
 const title = "ঢাকায় বাসে যাতায়াতের পূর্ণাঙ্গ গাইড ২০২৬: রুট, স্টপেজ ও স্মার্ট ট্রাভেল টিপস";
 const description =
   "ঢাকায় বাসে চলাচলের আগে কীভাবে সঠিক বাস রুট ও স্টপেজ খুঁজবেন, যাত্রা পরিকল্পনা করবেন এবং সময় বাঁচাবেন—জানুন ২০২৬ সালের এই ব্যবহারিক বাংলা গাইডে।";
@@ -18,16 +19,16 @@ export const metadata: Metadata = {
     url: `/blog/${slug}`,
     type: "article",
     locale: "bn_BD",
-    publishedTime: "2026-10-01T16:30:00.000Z",
-    modifiedTime: "2026-10-01T16:30:00.000Z",
+    publishedTime: featuredGuide.publishedAt,
+    modifiedTime: featuredGuide.modifiedAt,
     authors: ["Raihan Miraj"],
-    images: ["/media/6abc9d4675cea41a53926061"],
+    images: [featuredGuide.image],
   },
   twitter: {
     card: "summary_large_image",
     title,
     description,
-    images: ["/media/6abc9d4675cea41a53926061"],
+    images: [featuredGuide.image],
   },
 };
 
@@ -58,7 +59,7 @@ export default function Page() {
         <figure>
           <img
             className="media-img"
-            src="/media/6abc9d4675cea41a53926061"
+            src={featuredGuide.image}
             alt="ঢাকার বাস রুট, স্টপেজ এবং শহরের গণপরিবহন গাইড"
             width={1672}
             height={941}
@@ -265,14 +266,14 @@ export default function Page() {
           description,
           inLanguage: "bn",
           mainEntityOfPage: siteUrl() + `/blog/${slug}`,
-          datePublished: "2026-10-01T16:30:00.000Z",
-          dateModified: "2026-10-01T16:30:00.000Z",
+          datePublished: featuredGuide.publishedAt,
+          dateModified: featuredGuide.modifiedAt,
           author: {
             "@type": "Person",
             name: "Raihan Miraj",
             url: siteUrl() + "/authors/raihan-miraj",
           },
-          image: siteUrl() + "/media/6abc9d4675cea41a53926061",
+          image: siteUrl() + featuredGuide.image,
         }}
       />
     </article>

@@ -5,7 +5,11 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { siteUrl } from "./config";
 import { metadata } from "./seo";
 import type { Metadata } from "next";
+import { decodeSlug } from "./url";
 export async function article(slug: string) {
+  const decoded = decodeSlug(slug);
+  if (!decoded) notFound();
+  slug = decoded;
   const c = await collections();
   const p = await c.posts.findOne(
     { status: "published", "published.slug": slug },
@@ -69,7 +73,7 @@ export async function articleMetadata(slug: string): Promise<Metadata> {
     },
     openGraph: {
       title: p.seoTitle || p.title,
-      description: p.seoDescription,
+      description: p.seoDescription || p.excerpt,
       url: `/blog/${p.slug}`,
       type: "article",
       publishedTime: p.firstPublishedAt.toISOString(),

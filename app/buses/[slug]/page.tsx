@@ -4,10 +4,12 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { RouteOpened } from "@/components/tracking";
 import { RouteMap } from "@/components/route-map";
+import { decodeSlug } from "@/lib/url";
 
 async function get(params: Promise<{ slug: string }>) {
   const { slug } = await params;
-  const b = buses.find((b) => b.slug === slug);
+  const decoded = decodeSlug(slug);
+  const b = buses.find((b) => b.slug === decoded);
   if (!b) notFound();
   return b;
 }
@@ -18,8 +20,8 @@ export async function generateMetadata({
 }) {
   const b = await get(params);
   return meta(
-    b.bus,
-    `Source-listed stops for ${b.bus}. Confirm service details locally.`,
+    `${b.bus.split(" Bus Route")[0].split(" (")[0]}: ${b.routeStops[0]} to ${b.routeStops.at(-1)}`,
+    `${b.bus}: ${b.routeStops[0]} to ${b.routeStops.at(-1)}, with ${b.routeStops.length} listed stops. View the stop sequence and map; confirm service locally.`,
     `/buses/${b.slug}`,
   );
 }
