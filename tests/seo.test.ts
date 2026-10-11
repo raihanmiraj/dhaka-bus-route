@@ -4,16 +4,18 @@ import { buses, stops, slugify } from "../lib/routes";
 import { generateMetadata as busMetadata } from "../app/buses/[slug]/page";
 import { generateMetadata as stopMetadata } from "../app/stops/[slug]/page";
 import { paginatedMetadata } from "../lib/seo";
+import { generateMetadata as authorMetadata } from "../app/authors/[slug]/page";
 import { featuredGuide } from "../lib/featured-guide";
 
 const { posts, categories, tags, authors } = vi.hoisted(() => ({
   posts: { find: vi.fn(), countDocuments: vi.fn() },
   categories: { find: vi.fn() },
   tags: { find: vi.fn() },
-  authors: { find: vi.fn() },
+  authors: { find: vi.fn(), findOne: vi.fn() },
 }));
 vi.mock("@/lib/cms", () => ({
   collections: vi.fn(async () => ({ posts, categories, tags, authors })),
+  publicPosts: vi.fn(async () => ({ items: [], total: 1 })),
 }));
 vi.mock("@/components/route-map", () => ({ RouteMap: vi.fn() }));
 import sitemap from "../app/sitemap";
@@ -77,6 +79,23 @@ describe("public URL indexing regressions", () => {
       paginatedMetadata("Buses", "Bus directory", "/buses", "invalid"),
     ).toThrow();
   });
+});
+
+it("gives authors without a biography a useful description", async () => {
+  authors.findOne.mockResolvedValue({
+    name: "Raihan Miraj",
+    slug: "raihan-miraj",
+    userId: "author",
+    bio: "",
+  });
+  const meta = await authorMetadata({
+    params: Promise.resolve({ slug: "raihan-miraj" }),
+    searchParams: Promise.resolve({}),
+  });
+  expect(meta.description).toBe(
+    "Read Dhaka transport guides and bus route articles by Raihan Miraj on Dhaka Bus Routes.",
+  );
+  expect(meta.alternates?.canonical).toBe("/authors/raihan-miraj");
 });
 
 describe("sitemap dates and canonical URLs", () => {

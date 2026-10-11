@@ -16,9 +16,12 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const s = await get(params);
+  const count = buses.filter((b) =>
+    b.routeStops.some((name) => slugify(name) === s.id),
+  ).length;
   return meta(
     `${s.name} bus stop`,
-    `Find ${buses.filter((b) => b.routeStops.some((name) => slugify(name) === s.id)).length} listed bus routes serving ${s.name} in Dhaka. Browse route stops and maps, and plan your journey from this stop.`,
+    `Find ${count} listed bus ${count === 1 ? "route" : "routes"} serving ${s.name} in Dhaka. Browse route stops and maps, and plan your journey from this stop.`,
     `/stops/${s.id}`,
   );
 }
@@ -51,9 +54,10 @@ export default async function Page({
       />
       <h1>{s.name}</h1>
       <p>
-        {s.name} appears in {serving.length} listed bus routes. Open a bus below
-        to see its full stop sequence and approximate route map. Stop location
-        and service status have not been independently verified.
+        {s.name} appears in {serving.length} listed bus{" "}
+        {serving.length === 1 ? "route" : "routes"}. Open a bus below to see its
+        full stop sequence and approximate route map. Stop location and service
+        status have not been independently verified.
       </p>
       <Link className="button" href={`/?from=${s.id}`}>
         Find a journey from here

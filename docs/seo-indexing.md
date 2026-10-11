@@ -10,11 +10,12 @@ Audit and fixes: 12 October 2026 (Asia/Dhaka).
 - The static guide now shares its actual image and editorial dates with the sitemap. Its slug cannot produce a duplicate sitemap entry if a CMS record uses it. Sitemap URLs use URL serialization, including percent encoding for Unicode paths.
 - Indexable pagination uses normalized page-number canonicals and distinct page titles. Invalid page numbers remain 404, and page one canonicals point to the main archive.
 - Stop pages show bus endpoints and adjacent source-listed stops, adding useful route-specific detail and internal links without claiming verified locations or reverse operation.
+- Author pages with empty biographies use a descriptive article-archive introduction and meta description.
 - Blog Open Graph descriptions fall back to the excerpt when no SEO description is set.
 
 ## Validation
 
-- `npm test`: 26 passed; 13 database/server integration tests skipped because isolated local database credentials were not configured. Tests cover every bus/stop metadata lookup, encoded Unicode slugs, metadata uniqueness, broken internal stop references, pagination and sitemap dates/images.
+- `npm test`: 27 passed; 13 database/server integration tests skipped because isolated local database credentials were not configured. Tests cover every bus/stop metadata lookup, encoded Unicode slugs, metadata uniqueness, broken internal stop references, pagination and sitemap dates/images.
 - `npm run typecheck`, `npm run lint`, `npm run build`: passed.
 - HTTP checks against the local production build: 527 non-database public pages and bus pagination URLs returned 200, with a title, description, matching canonical, one H1 and no noindex. A nonexistent bus returned 404.
 - The earlier live audit's tunnel/connection errors are not origin HTTP errors; they do not establish that Googlebot is blocked.

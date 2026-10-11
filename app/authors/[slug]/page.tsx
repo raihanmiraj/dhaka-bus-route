@@ -9,7 +9,12 @@ async function get(p: Promise<{ slug: string }>) {
   if (!slug) notFound();
   const a = await (await collections()).authors.findOne({ slug });
   if (!a) notFound();
-  return a;
+  return {
+    ...a,
+    bio:
+      a.bio?.trim() ||
+      `Read Dhaka transport guides and bus route articles by ${a.name} on Dhaka Bus Routes.`,
+  };
 }
 export async function generateMetadata({
   params,
