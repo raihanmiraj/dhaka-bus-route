@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import { routeMapPoints } from "@/lib/stop-coordinates";
 
@@ -13,13 +13,11 @@ export function RouteMap({ stops, title }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<{ remove: () => void } | null>(null);
   const [ready, setReady] = useState(false);
-  const [covered, setCovered] = useState(0);
+  const points = useMemo(() => routeMapPoints(stops), [stops]);
 
   useEffect(() => {
     let cancelled = false;
     async function mount() {
-      const points = routeMapPoints(stops);
-      setCovered(points.length);
       if (!containerRef.current || points.length < 1) {
         setReady(true);
         return;
@@ -35,10 +33,10 @@ export function RouteMap({ stops, title }: Props) {
         attributionControl: true,
       });
       mapRef.current = map;
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
         attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
       }).addTo(map);
       const latlngs = points.map((p) => [p.lat, p.lng] as [number, number]);
       const line = L.polyline(latlngs, {
@@ -62,7 +60,9 @@ export function RouteMap({ stops, title }: Props) {
       });
       map.fitBounds(line.getBounds(), { padding: [36, 36], maxZoom: 13 });
       setReady(true);
-      requestAnimationFrame(() => map.invalidateSize());
+      requestAnimationFrame(() => {
+        if (!cancelled) map.invalidateSize();
+      });
     }
     void mount();
     return () => {
@@ -70,9 +70,9 @@ export function RouteMap({ stops, title }: Props) {
       mapRef.current?.remove();
       mapRef.current = null;
     };
-  }, [stops]);
+  }, [points]);
 
-  const mapped = covered;
+  const mapped = points.length;
   const total = stops.length;
 
   return (
