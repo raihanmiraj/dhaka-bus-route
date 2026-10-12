@@ -1,14 +1,17 @@
 import { buses, curatedJourneys, journeys, resolveStop, stops } from "./routes";
 
+/** Popular A→B pairs from Search Console + common Dhaka trips. */
 const candidatePairs: [string, string][] = [
   ["Mirpur 10", "Farmgate"],
+  ["Farmgate", "Banani"],
   ["Farmgate", "Motijheel"],
-  ["Mirpur 10", "Motijheel"],
+  ["Farmgate", "Gulshan 2"],
+  ["Mirpur 1", "Gulistan"],
   ["Gabtoli", "Sayedabad"],
   ["Uttara", "Farmgate"],
-  ["Mohammadpur", "Motijheel"],
+  ["Gulistan", "Gulshan 1"],
   ["Airport", "Shahbag"],
-  ["Mirpur 1", "Gulistan"],
+  ["Mohammadpur", "Motijheel"],
 ];
 
 export type JourneyHighlight = {
@@ -43,7 +46,7 @@ function highlight([from, to]: [string, string]): JourneyHighlight | null {
 export const journeyHighlights = candidatePairs
   .map(highlight)
   .filter((j): j is JourneyHighlight => !!j)
-  .slice(0, 6);
+  .slice(0, 8);
 
 const stopNames = new Set(stops.map((s) => s.name));
 const frequency = new Map<string, number>();
@@ -56,25 +59,27 @@ export const popularStops = [...frequency.entries()]
   .slice(0, 8)
   .map(([name]) => name);
 
-const previewMatches = (() => {
-  try {
-    return journeys("mirpur-10", "farmgate");
-  } catch {
-    return [];
-  }
-})();
-
-export const routePreview = previewMatches.length
-  ? {
-      from: "Mirpur 10",
-      to: "Farmgate",
-      buses: previewMatches.length,
-      bus: previewMatches[0].bus.bus.split(" Bus Route")[0],
-      stops: previewMatches[0].segment,
-    }
-  : null;
-
 export const coverage = {
   routes: buses.length,
   stops: stops.length,
 };
+
+/** FAQ answers targeting high-impression GSC / Semrush queries. */
+export const seoFaqs = [
+  {
+    q: "How do I find a Dhaka bus route?",
+    a: "Enter your boarding stop and destination above. Dhaka Bus Routes matches direct local buses that serve both stops in order, then ranks them by fewest listed stops.",
+  },
+  {
+    q: "Can I search from my current location?",
+    a: "Yes. Tap Use Current Location to auto-select the nearest listed stop (for example Mirpur 1), then choose where you are going.",
+  },
+  {
+    q: "Do you cover local city buses only?",
+    a: `We index ${buses.length} listed Dhaka city bus routes and ${stops.length} stops. Long-distance coach tickets (Cox's Bazar, Sylhet, etc.) are outside this finder.`,
+  },
+  {
+    q: "Are fares and live bus times available?",
+    a: "Fares, live GPS and exact departure times are not in the source lists. Confirm boarding details on the road before you travel.",
+  },
+];

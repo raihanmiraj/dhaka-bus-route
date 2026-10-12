@@ -9,24 +9,24 @@ for (const width of [360, 390, 768, 1024, 1440])
       fullPage: true,
     });
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-      "Find your bus across Dhaka.",
+      "Dhaka bus route finder",
     );
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,
       ),
     ).toBe(true);
-    const from = page.getByRole("combobox", { name: "Boarding stop" });
+    const from = page.getByRole("combobox", { name: "From (Origin)" });
     await from.fill("মিরপুর ১০");
-    await expect(page.getByRole("option").first()).toHaveText("Mirpur 10");
+    await expect(page.getByRole("option").first()).toContainText("Mirpur 10");
     await from.press("ArrowDown");
     await from.press("Enter");
     await page
-      .getByRole("combobox", { name: "Destination stop" })
+      .getByRole("combobox", { name: "To (Destination)" })
       .fill("Farmgate");
-    await page.getByRole("button", { name: "Find buses" }).click();
+    await page.getByRole("button", { name: "Search Routes" }).click();
     await expect(page.getByRole("status")).toContainText("matches");
-    await page.getByRole("button", { name: "Swap stops" }).click();
+    await page.getByRole("button", { name: "Clear" }).click();
     await expect(page.locator("section.card h3")).toHaveCount(0);
   });
 test("homepage accessibility and legacy API", async ({ page, request }) => {
@@ -84,8 +84,8 @@ test("public scripts exclude Editor.js and record local performance", async ({
       loaded.add(r.url());
   });
   await page.goto("/");
-  await page.getByRole("combobox", { name: "Boarding stop" }).fill("Farmgate");
-  await expect(page.getByRole("option").first()).toHaveText("Farmgate");
+  await page.getByRole("combobox", { name: "From (Origin)" }).fill("Farmgate");
+  await expect(page.getByRole("option").first()).toContainText("Farmgate");
   for (const url of loaded) {
     const text = await (await page.request.get(url)).text();
     expect(text).not.toMatch(

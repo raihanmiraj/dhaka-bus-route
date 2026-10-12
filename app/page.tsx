@@ -6,25 +6,20 @@ import {
   coverage,
   journeyHighlights,
   popularStops,
-  routePreview,
+  seoFaqs,
 } from "@/lib/landing";
 import Link from "next/link";
 import {
   FiArrowRight,
-  FiCheckCircle,
   FiFlag,
-  FiGlobe,
-  FiLayers,
-  FiMap,
   FiMapPin,
-  FiMessageCircle,
   FiNavigation,
-  FiShield,
+  FiSearch,
 } from "react-icons/fi";
 
 const homeMetadata = pageMeta(
-  "Find a bus in Dhaka",
-  "Search listed Dhaka bus routes by boarding stop and destination. Browse buses, stops and journey information.",
+  "Dhaka Bus Route Finder — Search Local Bus Routes & Stops",
+  "Find Dhaka bus routes by boarding stop and destination. Free local bus route finder with maps — Mirpur, Farmgate, Motijheel and more. English ও বাংলা.",
   "/",
 );
 export const dynamic = "force-dynamic";
@@ -43,105 +38,36 @@ export async function generateMetadata({
 const steps = [
   {
     icon: FiMapPin,
-    title: "Choose your boarding stop",
-    body: "Type in English or বাংলা and pick the exact stop from the suggestions.",
+    title: "Pick origin & destination",
+    body: "Type a stop in English or বাংলা, or use Current Location to auto-fill the nearest stop.",
+  },
+  {
+    icon: FiSearch,
+    title: "Search matching buses",
+    body: "We show direct Dhaka city buses that pass both stops in the listed order.",
   },
   {
     icon: FiNavigation,
-    title: "Set your destination",
-    body: "We check every listed route that passes both stops in the right order.",
-  },
-  {
-    icon: FiMap,
-    title: "Compare buses and view the map",
-    body: "Routes are ranked by fewest stops. Open any bus to see its stops plotted on OpenStreetMap.",
+    title: "Open the route map",
+    body: "Compare stop counts, then open any bus page for the full stop list and OpenStreetMap path.",
   },
 ];
-
-const features = [
-  {
-    icon: FiLayers,
-    title: "Direct route matching",
-    body: "Only buses that serve both stops in source order are shown — no guesswork.",
-  },
-  {
-    icon: FiMap,
-    title: "OpenStreetMap view",
-    body: "See the approximate path of each bus with start, stops and end marked.",
-  },
-  {
-    icon: FiGlobe,
-    title: "English & বাংলা",
-    body: "Search with either script. Common spelling variants are recognised.",
-  },
-  {
-    icon: FiMessageCircle,
-    title: "Community guides",
-    body: "Practical articles from passengers, with likes and comments.",
-  },
-];
-
-function RoutePreview() {
-  const preview = routePreview;
-  if (!preview) return null;
-  const shown =
-    preview.stops.length > 6
-      ? [...preview.stops.slice(0, 3), null, ...preview.stops.slice(-2)]
-      : preview.stops;
-  return (
-    <aside className="hero-preview" aria-label="Example journey">
-      <div className="preview-head">
-        <span className="preview-live">Example journey</span>
-        <span className="preview-count">{preview.buses} buses</span>
-      </div>
-      <p className="preview-title">
-        {preview.from} <FiArrowRight aria-hidden /> {preview.to}
-      </p>
-      <p className="preview-bus">{preview.bus}</p>
-      <ol className="preview-line">
-        {shown.map((s, i) =>
-          s === null ? (
-            <li key="gap" className="is-gap">
-              +{preview.stops.length - 5} more stops
-            </li>
-          ) : (
-            <li
-              key={`${s}-${i}`}
-              className={
-                i === 0 ? "is-start" : i === shown.length - 1 ? "is-end" : ""
-              }
-            >
-              {s}
-            </li>
-          ),
-        )}
-      </ol>
-      <Link
-        className="preview-link"
-        href={`/?from=${encodeURIComponent(preview.from)}&to=${encodeURIComponent(preview.to)}#search`}
-      >
-        See all matching buses <FiArrowRight aria-hidden />
-      </Link>
-    </aside>
-  );
-}
 
 export default function Home() {
   return (
     <div className="home">
       <Search
         popular={popularStops.slice(0, 6)}
-        aside={<RoutePreview />}
         intro={
           <>
-            <span className="hero-pill">
-              <FiCheckCircle aria-hidden /> Free · No sign-up · Bilingual
-            </span>
-            <h1 id="home-title">Find your bus across Dhaka.</h1>
+            <p className="hero-bn" lang="bn">
+              ঢাকা শহরে বাস রুট, স্টপ এবং সময়সূচী খুঁজুন
+            </p>
+            <h1 id="home-title">Dhaka bus route finder</h1>
             <p className="hero-lead">
-              Enter where you board and where you&apos;re going. We match direct
-              buses from {coverage.routes} listed routes and show every stop
-              before you travel.
+              Search {coverage.routes} listed local bus routes by stop. Tap Use
+              Current Location to start from the nearest stop — then choose where
+              you&apos;re going.
             </p>
           </>
         }
@@ -150,26 +76,26 @@ export default function Home() {
       <section className="stats-strip" aria-label="Coverage">
         <div>
           <strong>{coverage.routes}</strong>
-          <span>Listed bus routes</span>
+          <span>Bus routes</span>
         </div>
         <div>
           <strong>{coverage.stops}</strong>
           <span>Stops indexed</span>
         </div>
         <div>
-          <strong>2</strong>
-          <span>Languages supported</span>
+          <strong>EN · বাং</strong>
+          <span>Bilingual search</span>
         </div>
         <div>
-          <strong>OSM</strong>
-          <span>Route maps</span>
+          <strong>Near me</strong>
+          <span>Current location</span>
         </div>
       </section>
 
       <section className="home-section" aria-labelledby="how-title">
         <div className="section-intro">
-          <p className="eyebrow">How it works</p>
-          <h2 id="how-title">Plan a trip in three steps</h2>
+          <p className="eyebrow">Easy search</p>
+          <h2 id="how-title">Find a bus in three steps</h2>
         </div>
         <ol className="steps">
           {steps.map((s, i) => (
@@ -188,7 +114,11 @@ export default function Home() {
           <div className="section-intro section-intro-row">
             <div>
               <p className="eyebrow">Popular journeys</p>
-              <h2 id="journeys-title">Start with a common trip</h2>
+              <h2 id="journeys-title">Start with a common Dhaka trip</h2>
+              <p className="section-lead">
+                One-tap searches for routes people look up most — Farmgate,
+                Mirpur, Motijheel and more.
+              </p>
             </div>
             <Link className="section-link" href="/routes">
               All journeys <FiArrowRight aria-hidden />
@@ -223,20 +153,57 @@ export default function Home() {
         </section>
       )}
 
-      <section className="home-section" aria-labelledby="features-title">
+      <section className="home-section seo-block" aria-labelledby="about-finder">
         <div className="section-intro">
-          <p className="eyebrow">Why Dhaka Bus Routes</p>
-          <h2 id="features-title">Built for everyday passengers</h2>
+          <p className="eyebrow">Dhaka local buses</p>
+          <h2 id="about-finder">Plan city bus travel without the guesswork</h2>
         </div>
-        <div className="feature-cards">
-          {features.map((f) => (
-            <div className="feature-card" key={f.title}>
-              <span className="feature-icon">
-                <f.icon aria-hidden size={20} />
-              </span>
-              <h3>{f.title}</h3>
-              <p>{f.body}</p>
-            </div>
+        <div className="seo-grid">
+          <div>
+            <p>
+              Looking up a <strong>Dhaka bus route</strong> usually means asking
+              around at the stop. This free finder lists{" "}
+              <strong>Dhaka city bus routes</strong> by boarding stop and
+              destination so you can compare direct options before you leave.
+            </p>
+            <p>
+              Search works in English and বাংলা. Use Current Location when you
+              need a <strong>bus stop near me</strong>, browse the{" "}
+              <Link href="/buses">full bus list</Link>, or open any{" "}
+              <Link href="/stops">stop page</Link> to see which buses call there.
+            </p>
+          </div>
+          <ul className="seo-links">
+            <li>
+              <Link href="/buses">All Dhaka bus services</Link>
+            </li>
+            <li>
+              <Link href="/stops">Bus stops directory</Link>
+            </li>
+            <li>
+              <Link href="/routes">Popular route pages</Link>
+            </li>
+            <li>
+              <Link href="/blog">Travel guides & tips</Link>
+            </li>
+            <li>
+              <Link href="/data-sources">How we use route data</Link>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section className="home-section" aria-labelledby="faq-title">
+        <div className="section-intro">
+          <p className="eyebrow">FAQ</p>
+          <h2 id="faq-title">Common questions</h2>
+        </div>
+        <div className="faq-list">
+          {seoFaqs.map((item) => (
+            <details key={item.q} className="faq-item">
+              <summary>{item.q}</summary>
+              <p>{item.a}</p>
+            </details>
           ))}
         </div>
       </section>
@@ -245,14 +212,10 @@ export default function Home() {
 
       <section className="cta-band" aria-labelledby="cta-title">
         <div>
-          <span className="cta-icon">
-            <FiShield aria-hidden size={22} />
-          </span>
-          <h2 id="cta-title">Honest data, improved by passengers</h2>
+          <h2 id="cta-title">See a wrong stop or missing bus?</h2>
           <p>
-            Fares, timetables and live status aren&apos;t available, and routes
-            are awaiting verification. If something has changed, tell us — every
-            report is reviewed.
+            Routes are listed from public sources and still need verification.
+            Send a correction — every report is reviewed.
           </p>
         </div>
         <div className="cta-actions">
@@ -260,7 +223,7 @@ export default function Home() {
             <FiFlag aria-hidden /> Report a correction
           </Link>
           <Link className="button cta-secondary" href="/data-sources">
-            How we use route data
+            Data sources
           </Link>
         </div>
       </section>
@@ -268,9 +231,40 @@ export default function Home() {
       <JsonLd
         value={{
           "@context": "https://schema.org",
-          "@type": "WebSite",
-          name: "Dhaka Bus Routes",
-          url: siteUrl(),
+          "@graph": [
+            {
+              "@type": "WebSite",
+              name: "Dhaka Bus Routes",
+              url: siteUrl(),
+              potentialAction: {
+                "@type": "SearchAction",
+                target: {
+                  "@type": "EntryPoint",
+                  urlTemplate: `${siteUrl()}/?from={from}&to={to}#search`,
+                },
+                "query-input": [
+                  {
+                    "@type": "PropertyValueSpecification",
+                    valueRequired: true,
+                    valueName: "from",
+                  },
+                  {
+                    "@type": "PropertyValueSpecification",
+                    valueRequired: true,
+                    valueName: "to",
+                  },
+                ],
+              },
+            },
+            {
+              "@type": "FAQPage",
+              mainEntity: seoFaqs.map((f) => ({
+                "@type": "Question",
+                name: f.q,
+                acceptedAnswer: { "@type": "Answer", text: f.a },
+              })),
+            },
+          ],
         }}
       />
     </div>

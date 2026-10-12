@@ -359,6 +359,40 @@ export function stopCoordinate(name: string): LatLng | null {
   return known[aliases[compact] ?? compact] ?? null;
 }
 
+function haversineMeters(a: LatLng, b: LatLng) {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const R = 6371000;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const lat1 = toRad(a.lat);
+  const lat2 = toRad(b.lat);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+/** Find the closest mapped stop to a GPS point (for "Use Current Location"). */
+export function nearestStop(
+  lat: number,
+  lng: number,
+  candidates: { id: string; name: string }[],
+  maxMeters = 2500,
+): { id: string; name: string; meters: number } | null {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  if (lat < 23.4 || lat > 24.2 || lng < 90.1 || lng > 90.7) return null;
+  const here = { lat, lng };
+  let best: { id: string; name: string; meters: number } | null = null;
+  for (const stop of candidates) {
+    const point = stopCoordinate(stop.name) ?? stopCoordinate(stop.id);
+    if (!point) continue;
+    const meters = haversineMeters(here, point);
+    if (meters > maxMeters) continue;
+    if (!best || meters < best.meters) best = { ...stop, meters };
+  }
+  return best;
+}
+
 export function routeMapPoints(stops: string[]) {
   return stops
     .map((name, index) => {

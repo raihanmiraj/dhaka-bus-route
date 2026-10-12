@@ -57,8 +57,14 @@ export default function Page() {
         <li>
           <strong>Analytics.</strong> The site uses Google Analytics to
           understand aggregate traffic (pages viewed, approximate location at a
-          city or region level, device and browser type). It does not request
-          precise GPS locations from your device for route search.
+          city or region level, device and browser type).
+        </li>
+        <li>
+          <strong>Optional current location.</strong> If you tap{" "}
+          <em>Use Current Location</em>, your browser may share GPS coordinates
+          with this site only for that request so we can suggest the nearest
+          listed bus stop (for example Mirpur 1). Coordinates are not stored as
+          a travel history. You can refuse permission and type a stop instead.
         </li>
         <li>
           <strong>Technical logs.</strong> Standard server and security logs may

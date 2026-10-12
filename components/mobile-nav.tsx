@@ -37,6 +37,16 @@ export function MobileNav() {
               className={`mobile-nav-center${active ? " is-active" : ""}`}
               aria-current={active ? "page" : undefined}
               aria-label="Search routes"
+              onClick={() => {
+                if (pathname === "/") {
+                  const el = document.getElementById("search");
+                  if (el) {
+                    el.scrollIntoView({ behavior: "smooth" });
+                    const input = el.querySelector("input");
+                    if (input) input.focus();
+                  }
+                }
+              }}
             >
               <span className="mobile-nav-center-btn">
                 <Icon aria-hidden size={22} />

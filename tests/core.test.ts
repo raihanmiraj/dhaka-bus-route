@@ -8,6 +8,7 @@ import {
   stops,
   slugify,
 } from "../lib/routes";
+import { nearestStop } from "../lib/stop-coordinates";
 import {
   draftSchema,
   blankDraft,
@@ -168,4 +169,10 @@ it("rejects mismatched image URLs and unbounded nested lists", () => {
 it("assigns unique stop identities while preserving casing aliases", () => {
   expect(new Set(stops.map((s) => s.id)).size).toBe(stops.length);
   expect(resolveStop("Sony CInema Hall").id).toBe("sony-cinema-hall");
+});
+
+it("maps GPS near Mirpur 1 to that stop", () => {
+  const match = nearestStop(23.7956, 90.3534, stops);
+  expect(match?.id).toBe("mirpur-1");
+  expect(match?.meters).toBeLessThan(50);
 });

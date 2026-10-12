@@ -1,9 +1,17 @@
 "use client";
 import { sendGAEvent } from "@next/third-parties/google";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { FiArrowRight, FiRepeat, FiSearch, FiX } from "react-icons/fi";
+import {
+  FiArrowRight,
+  FiChevronDown,
+  FiMapPin,
+  FiNavigation,
+  FiRepeat,
+  FiSearch,
+  FiX,
+} from "react-icons/fi";
 import { Button, Alert, RouteCard } from "./ui";
-type Stop = { id: string; name: string };
+type Stop = { id: string; name: string; aliases?: string[] };
 type Result = {
   bus: { slug: string; bus: string; routeStops: string[] };
   segment: string[];
@@ -19,13 +27,11 @@ export function Combobox({
   value,
   onChange,
   placeholder,
-  marker,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  marker?: "start" | "end";
 }) {
   const id = useId();
   const [items, setItems] = useState<Stop[]>([]),
@@ -51,10 +57,13 @@ export function Combobox({
     setOpen(false);
     setActive(-1);
   };
+  const bangla = (s: Stop) =>
+    s.aliases?.find((a) => /[\u0980-\u09FF]/.test(a)) ?? "";
   return (
-    <div className="combobox">
+    <div className={`combobox stop-picker${open ? " is-open" : ""}`}>
       <label htmlFor={id}>{label}</label>
-      <div className={`field${marker ? ` field-${marker}` : ""}`}>
+      <div className="field stop-field">
+        <FiMapPin aria-hidden className="stop-field-icon" size={18} />
         <input
           id={id}
           role="combobox"
@@ -91,21 +100,42 @@ export function Combobox({
             }
           }}
         />
+        {value ? (
+          <button
+            type="button"
+            className="stop-field-clear"
+            aria-label={`Reset ${label}`}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => {
+              onChange("");
+              setOpen(false);
+            }}
+          >
+            <FiX aria-hidden size={16} />
+          </button>
+        ) : (
+          <FiChevronDown aria-hidden className="stop-field-chevron" size={16} />
+        )}
       </div>
       {open && (
         <div role="listbox" id={`${id}-list`} className="suggestions">
-          {items.map((s, i) => (
-            <div
-              id={`${id}-${i}`}
-              role="option"
-              aria-selected={active === i}
-              key={s.id}
-              onPointerDown={(e) => e.preventDefault()}
-              onClick={() => select(s)}
-            >
-              {s.name}
-            </div>
-          ))}
+          {items.map((s, i) => {
+            const bn = bangla(s);
+            return (
+              <div
+                id={`${id}-${i}`}
+                role="option"
+                aria-selected={active === i}
+                key={s.id}
+                onMouseDown={(e) => e.preventDefault()}
+                onPointerDown={(e) => e.preventDefault()}
+                onClick={() => select(s)}
+              >
+                <span className="stop-name">{s.name}</span>
+                {bn ? <span className="stop-bn"> ({bn})</span> : null}
+              </div>
+            );
+          })}
           {!items.length && <p>No matching stop. Try another spelling.</p>}
         </div>
       )}
@@ -114,7 +144,6 @@ export function Combobox({
 }
 export default function Search({
   intro,
-  aside,
   popular = [],
 }: {
   intro?: ReactNode;
@@ -126,6 +155,7 @@ export default function Search({
     [items, setItems] = useState<Result[]>([]),
     [message, setMessage] = useState(""),
     [loading, setLoading] = useState(false),
+    [locating, setLocating] = useState(false),
     [page, setPage] = useState(1),
     [total, setTotal] = useState(0);
   const request = useRef(0);
@@ -144,15 +174,20 @@ export default function Search({
     setLoading(true);
     setMessage("");
     try {
-      const r = await fetch(
-        `/api/search?from=${encodeURIComponent(f)}&to=${encodeURIComponent(t)}&page=${n}`,
-      );
+      const params = new URLSearchParams({
+        from: f,
+        to: t,
+        page: String(n),
+      });
+      const r = await fetch(`/api/search?${params}`);
       const d = await r.json();
       if (seq !== request.current) return;
       if (!r.ok) throw new Error(d.error);
       setItems((prev) => (n === 1 ? d.items : [...prev, ...d.items]));
       setTotal(d.total);
       setPage(n);
+      if (d.fromName) setFrom(d.fromName);
+      if (d.toName) setTo(d.toName);
       setMessage(
         d.total
           ? `${d.total} matches, ordered by fewest listed stops. Travel times are unknown.`
@@ -180,6 +215,50 @@ export default function Search({
       if (seq === request.current) setLoading(false);
     }
   }
+  async function locateNearestStop() {
+    if (!navigator.geolocation) {
+      setMessage("Location is not supported in this browser.");
+      return;
+    }
+    setLocating(true);
+    setMessage("");
+    try {
+      const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 12000,
+          maximumAge: 60_000,
+        });
+      });
+      const r = await fetch(
+        `/api/search?kind=nearest&lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`,
+      );
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error);
+      reset();
+      setFrom(d.stop.name);
+      setMessage(
+        `Nearest stop selected: ${d.stop.name} (~${d.meters}m). Pick a destination to search.`,
+      );
+      track("current_location_success", {
+        stop: d.stop.id,
+        meters: d.meters,
+      });
+    } catch (e) {
+      const msg =
+        e instanceof GeolocationPositionError
+          ? e.code === e.PERMISSION_DENIED
+            ? "Location permission denied. Allow location access, or type your stop."
+            : "Could not read your location. Try again or type your stop."
+          : e instanceof Error
+            ? e.message
+            : "Could not use current location.";
+      setMessage(msg);
+      track("current_location_error");
+    } finally {
+      setLocating(false);
+    }
+  }
   useEffect(() => {
     const p = new URLSearchParams(location.search);
     const f = p.get("from") ?? "",
@@ -201,7 +280,6 @@ export default function Search({
     <>
       <section className="home-hero" aria-labelledby="home-title" id="search">
         <div className="home-hero-copy">{intro}</div>
-        {aside}
         <form
           ref={formRef}
           className="finder"
@@ -212,10 +290,9 @@ export default function Search({
         >
           <div className="finder-grid">
             <Combobox
-              label="Boarding stop"
+              label="From (Origin)"
               value={from}
-              marker="start"
-              placeholder="e.g. Mirpur 10"
+              placeholder="From (Origin)"
               onChange={(v) => {
                 reset();
                 setFrom(v);
@@ -224,34 +301,51 @@ export default function Search({
             <button
               type="button"
               className="swap-btn"
+              aria-label="Swap stops"
+              title="Swap origin and destination"
               onClick={() => {
                 reset();
                 setFrom(to);
                 setTo(from);
+                if (from && to) {
+                  void search(1, to, from);
+                }
               }}
-              aria-label="Swap stops"
             >
               <FiRepeat aria-hidden size={18} />
             </button>
             <Combobox
-              label="Destination stop"
+              label="To (Destination)"
               value={to}
-              marker="end"
-              placeholder="e.g. Farmgate"
+              placeholder="To (Destination)"
               onChange={(v) => {
                 reset();
                 setTo(v);
               }}
             />
-            <Button className="finder-submit" disabled={loading || !from || !to}>
-              <FiSearch aria-hidden size={18} />
-              {loading ? "Searching…" : "Find buses"}
-            </Button>
+            <div className="finder-actions">
+              <Button
+                className="finder-submit"
+                disabled={loading || !from || !to}
+              >
+                <FiSearch aria-hidden size={18} />
+                {loading ? "Searching…" : "Search Routes"}
+              </Button>
+              <button
+                type="button"
+                className="finder-locate"
+                disabled={locating}
+                onClick={() => void locateNearestStop()}
+              >
+                <FiNavigation aria-hidden size={16} />
+                {locating ? "Finding nearest…" : "Use Current Location"}
+              </button>
+            </div>
           </div>
           <div className="finder-foot">
             {popular.length > 0 && (
               <div className="quick-picks" aria-label="Popular stops">
-                <span>Popular:</span>
+                <span>Quick picks:</span>
                 {popular.map((s) => (
                   <button type="button" key={s} onClick={() => pick(s)}>
                     {s}
@@ -280,7 +374,7 @@ export default function Search({
         {message && <Alert>{message}</Alert>}
         {items.length > 0 && (
           <div className="results-head">
-            <h2>Matching buses</h2>
+            <h2>Matching Dhaka bus routes</h2>
             <p className="muted">
               {from} <FiArrowRight aria-hidden /> {to}
             </p>

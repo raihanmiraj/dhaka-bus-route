@@ -22,7 +22,8 @@ const display = Manrope({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: { default: "Dhaka Bus Routes", template: "%s | Dhaka Bus Routes" },
-  description: "Find listed Dhaka bus routes by boarding stop and destination.",
+  description:
+    "Find Dhaka bus routes by boarding stop and destination. Free local bus route finder with maps — English ও বাংলা.",
   verification: { google: "PHLU7GM99zhqx63oN5oeEJPoexoPvkDdGMbpL3un1V4" },
   icons: { icon: "/images/favicon-transparent-blue-header.ico" },
   alternates: { types: { "application/rss+xml": "/feed.xml" } },
