@@ -232,6 +232,11 @@ main.wrap {
   font-size: 0.85rem;
 }
 
+/* Only show the bottom app navigation at the mobile breakpoint below. */
+.mobile-nav {
+  display: none;
+}
+
 .skip {
   position: absolute;
   top: -100px;
