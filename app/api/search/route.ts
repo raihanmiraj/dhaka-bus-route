@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { suggestions, journeys, resolveStop, stops, normalize } from "@/lib/routes";
+import {
+  suggestions,
+  journeys,
+  resolveStop,
+  stops,
+  normalize,
+} from "@/lib/routes";
 import { nearestStop } from "@/lib/stop-coordinates";
 export function GET(req: NextRequest) {
   const p = req.nextUrl.searchParams;
@@ -9,19 +15,31 @@ export function GET(req: NextRequest) {
     if (p.get("kind") === "stops")
       return NextResponse.json({ items: suggestions(p.get("q") ?? "") });
     if (p.get("kind") === "nearest") {
-      const lat = Number(p.get("lat"));
-      const lng = Number(p.get("lng"));
-      if (!Number.isFinite(lat) || !Number.isFinite(lng))
+      const rawLat = p.get("lat"),
+        rawLng = p.get("lng");
+      const lat = Number(rawLat);
+      const lng = Number(rawLng);
+      if (
+        !rawLat?.trim() ||
+        !rawLng?.trim() ||
+        !Number.isFinite(lat) ||
+        !Number.isFinite(lng) ||
+        Math.abs(lat) > 90 ||
+        Math.abs(lng) > 180
+      )
         throw new Error("Location coordinates are required.");
       const match = nearestStop(lat, lng, stops);
       if (!match)
         throw new Error(
           "No listed bus stop was found near you. Try searching by stop name.",
         );
-      return NextResponse.json({
-        stop: { id: match.id, name: match.name },
-        meters: Math.round(match.meters),
-      });
+      return NextResponse.json(
+        {
+          stop: { id: match.id, name: match.name },
+          meters: Math.round(match.meters),
+        },
+        { headers: { "Cache-Control": "private, no-store" } },
+      );
     }
     const page = Number(p.get("page") || 1);
     if (!Number.isInteger(page) || page < 1 || page > 100)

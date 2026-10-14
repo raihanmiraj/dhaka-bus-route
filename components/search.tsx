@@ -11,6 +11,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import { Button, Alert, RouteCard } from "./ui";
+import { currentLocation, locationErrorMessage } from "@/lib/geolocation";
 type Stop = { id: string; name: string; aliases?: string[] };
 type Result = {
   bus: { slug: string; bus: string; routeStops: string[] };
@@ -159,6 +160,7 @@ export default function Search({
     [page, setPage] = useState(1),
     [total, setTotal] = useState(0);
   const request = useRef(0);
+  const locationInFlight = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const reset = () => {
@@ -216,46 +218,55 @@ export default function Search({
     }
   }
   async function locateNearestStop() {
+    if (locationInFlight.current) return;
     if (!navigator.geolocation) {
-      setMessage("Location is not supported in this browser.");
+      setMessage(
+        "Location is not supported in this browser. Choose your origin manually.",
+      );
       return;
     }
+    locationInFlight.current = true;
+    reset();
+    const seq = request.current;
     setLocating(true);
-    setMessage("");
     try {
-      const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 12000,
-          maximumAge: 60_000,
+      const pos = await currentLocation(navigator.geolocation);
+      if (seq !== request.current) return;
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 10_000);
+      try {
+        const r = await fetch(
+          `/api/search?${new URLSearchParams({ kind: "nearest", lat: String(pos.coords.latitude), lng: String(pos.coords.longitude) })}`,
+          { signal: controller.signal, cache: "no-store" },
+        );
+        const d = await r.json();
+        if (seq !== request.current) return;
+        if (!r.ok)
+          throw new Error(
+            d.error ||
+              "Could not find a nearby stop. Choose your origin manually.",
+          );
+        setFrom(d.stop.name);
+        setMessage(
+          `${d.stop.name} selected as your origin. Nearest listed stop, about ${d.meters}m in a straight line (location accuracy ±${Math.round(pos.coords.accuracy)}m). Choose your destination.`,
+        );
+        track("current_location_success", {
+          stop: d.stop.id,
+          meters: d.meters,
         });
-      });
-      const r = await fetch(
-        `/api/search?kind=nearest&lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`,
-      );
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
-      reset();
-      setFrom(d.stop.name);
+      } finally {
+        clearTimeout(timer);
+      }
+    } catch (error) {
+      if (seq !== request.current) return;
       setMessage(
-        `Nearest stop selected: ${d.stop.name} (~${d.meters}m). Pick a destination to search.`,
+        error instanceof Error && error.name === "AbortError"
+          ? "Finding a nearby stop timed out. Try again, or choose your origin manually."
+          : locationErrorMessage(error),
       );
-      track("current_location_success", {
-        stop: d.stop.id,
-        meters: d.meters,
-      });
-    } catch (e) {
-      const msg =
-        e instanceof GeolocationPositionError
-          ? e.code === e.PERMISSION_DENIED
-            ? "Location permission denied. Allow location access, or type your stop."
-            : "Could not read your location. Try again or type your stop."
-          : e instanceof Error
-            ? e.message
-            : "Could not use current location.";
-      setMessage(msg);
       track("current_location_error");
     } finally {
+      locationInFlight.current = false;
       setLocating(false);
     }
   }
@@ -268,6 +279,9 @@ export default function Search({
     if (f && t) void search(1, f, t);
     else if (location.hash === "#search")
       formRef.current?.querySelector("input")?.focus();
+    return () => {
+      request.current++;
+    };
   }, []);
   const pick = (name: string) => {
     reset();

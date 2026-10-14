@@ -380,7 +380,7 @@ export function nearestStop(
   maxMeters = 2500,
 ): { id: string; name: string; meters: number } | null {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-  if (lat < 23.4 || lat > 24.2 || lng < 90.1 || lng > 90.7) return null;
+  if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
   const here = { lat, lng };
   let best: { id: string; name: string; meters: number } | null = null;
   for (const stop of candidates) {
