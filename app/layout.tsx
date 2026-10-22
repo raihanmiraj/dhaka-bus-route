@@ -43,6 +43,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${sans.variable} ${display.variable}`}>
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5681962894185871"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body>
         <a className="skip" href="#main">
           Skip to content
