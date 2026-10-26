@@ -2,6 +2,15 @@ import type { Metadata } from "next";
 import { siteUrl } from "./config";
 import { pageNumber } from "./pagination";
 import { notFound } from "next/navigation";
+
+/** Default social preview — 1672×941 PNG already used sitewide. */
+export const DEFAULT_OG_IMAGE = {
+  url: "/images/featured-image.png",
+  width: 1672,
+  height: 941,
+  alt: "Dhaka Bus Routes — find local bus routes and stops across Dhaka",
+} as const;
+
 export function metadata(
   title: string,
   description: string,
@@ -18,13 +27,15 @@ export function metadata(
       description,
       url: path,
       type: "website",
-      images: ["/images/featured-image.png"],
+      siteName: "Dhaka Bus Routes",
+      locale: "en_US",
+      images: [DEFAULT_OG_IMAGE],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: ["/images/featured-image.png"],
+      images: [DEFAULT_OG_IMAGE],
     },
   };
 }

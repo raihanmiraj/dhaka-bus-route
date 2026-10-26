@@ -2,8 +2,8 @@ import { stops } from "@/lib/routes";
 import { metadata as meta, Breadcrumbs } from "@/lib/seo";
 import Link from "next/link";
 export const metadata = meta(
-  "Bus stops",
-  "Browse the boarding stops in our Dhaka route dataset.",
+  "Bus stops — Dhaka boarding points",
+  `Browse ${stops.length} boarding stops from the Dhaka route dataset. Open a stop to see which listed buses call there.`,
   "/stops",
 );
 export default function Page() {

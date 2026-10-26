@@ -27,6 +27,14 @@ export const metadata: Metadata = {
   verification: { google: "PHLU7GM99zhqx63oN5oeEJPoexoPvkDdGMbpL3un1V4" },
   icons: { icon: "/images/favicon-transparent-blue-header.ico" },
   alternates: { types: { "application/rss+xml": "/feed.xml" } },
+  openGraph: {
+    type: "website",
+    siteName: "Dhaka Bus Routes",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export const viewport: Viewport = {

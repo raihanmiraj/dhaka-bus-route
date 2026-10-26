@@ -1,11 +1,14 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { decodeSlug } from "../lib/url";
-import { buses, stops, slugify } from "../lib/routes";
+import { buses, stops, slugify, curatedJourneys } from "../lib/routes";
 import { generateMetadata as busMetadata } from "../app/buses/[slug]/page";
 import { generateMetadata as stopMetadata } from "../app/stops/[slug]/page";
-import { paginatedMetadata } from "../lib/seo";
+import { generateMetadata as journeyMetadata } from "../app/routes/[slug]/page";
+import { metadata as pageMeta, paginatedMetadata, DEFAULT_OG_IMAGE } from "../lib/seo";
 import { generateMetadata as authorMetadata } from "../app/authors/[slug]/page";
 import { featuredGuide } from "../lib/featured-guide";
+import { slugify as lightSlugify, normalize } from "../lib/slug";
+import { CANONICAL_ORIGIN, siteUrl } from "../lib/config";
 
 const { posts, categories, tags, authors } = vi.hoisted(() => ({
   posts: { find: vi.fn(), countDocuments: vi.fn() },
@@ -98,7 +101,82 @@ it("gives authors without a biography a useful description", async () => {
   expect(meta.alternates?.canonical).toBe("/authors/raihan-miraj");
 });
 
+describe("metadata helpers and title patterns", () => {
+  it("emits Open Graph site name, image alt and twitter large card defaults", () => {
+    const meta = pageMeta("Example", "A useful description.", "/example");
+    expect(meta.openGraph).toMatchObject({
+      siteName: "Dhaka Bus Routes",
+      url: "/example",
+      images: [DEFAULT_OG_IMAGE],
+    });
+    expect(meta.twitter).toMatchObject({
+      card: "summary_large_image",
+      images: [DEFAULT_OG_IMAGE],
+    });
+    expect(meta.alternates?.canonical).toBe("/example");
+  });
+
+  it("keeps bus, stop and journey titles unique and patterned", async () => {
+    const busTitles = await Promise.all(
+      buses.map((b) =>
+        busMetadata({ params: Promise.resolve({ slug: b.slug }) }),
+      ),
+    );
+    expect(new Set(busTitles.map((m) => m.title)).size).toBe(buses.length);
+    expect(String(busTitles[0].title)).toMatch(/— .+ to .+: Route, Stops & Map$/);
+
+    const stopTitles = await Promise.all(
+      stops.map((s) =>
+        stopMetadata({ params: Promise.resolve({ slug: s.id }) }),
+      ),
+    );
+    expect(new Set(stopTitles.map((m) => m.title)).size).toBe(stops.length);
+    expect(String(stopTitles[0].title)).toMatch(/— Buses & Routes$/);
+
+    for (const j of curatedJourneys) {
+      const meta = await journeyMetadata({
+        params: Promise.resolve({ slug: j.slug }),
+      });
+      expect(String(meta.title)).toMatch(/— Bus Routes$/);
+      expect(meta.alternates?.canonical).toBe(`/routes/${j.slug}`);
+    }
+  });
+
+  it("keeps slug helpers shared between routes and the lightweight module", () => {
+    expect(lightSlugify("Mirpur 10")).toBe(slugify("Mirpur 10"));
+    expect(normalize("মিরপুর ১০")).toBe(normalize("মিরপুর 10"));
+  });
+});
+
+describe("canonical origin", () => {
+  const previous = process.env.SITE_URL;
+  afterEach(() => {
+    if (previous === undefined) delete process.env.SITE_URL;
+    else process.env.SITE_URL = previous;
+  });
+
+  it("defaults to the preferred www production origin", () => {
+    delete process.env.SITE_URL;
+    expect(CANONICAL_ORIGIN).toBe("https://www.dhakabusroutes.com");
+    expect(siteUrl()).toBe(CANONICAL_ORIGIN);
+  });
+
+  it("normalizes apex SITE_URL to www", () => {
+    process.env.SITE_URL = "https://dhakabusroutes.com";
+    expect(siteUrl()).toBe("https://www.dhakabusroutes.com");
+  });
+});
+
 describe("sitemap dates and canonical URLs", () => {
+  const previous = process.env.SITE_URL;
+  beforeEach(() => {
+    process.env.SITE_URL = CANONICAL_ORIGIN;
+  });
+  afterEach(() => {
+    if (previous === undefined) delete process.env.SITE_URL;
+    else process.env.SITE_URL = previous;
+  });
+
   it("uses editorial timestamps, encoded URLs, published posts and the actual static guide image", async () => {
     const modifiedAt = new Date("2026-10-07T06:58:14.028Z");
     posts.find.mockReturnValue({
@@ -130,7 +208,7 @@ describe("sitemap dates and canonical URLs", () => {
       first.find((e) => e.url.endsWith(`/blog/${featuredGuide.slug}`)),
     ).toMatchObject({
       lastModified: featuredGuide.modifiedAt,
-      images: [`https://www.dhakabusroutes.com${featuredGuide.image}`],
+      images: [`${CANONICAL_ORIGIN}${featuredGuide.image}`],
     });
     expect(
       first.find((e) => e.url.endsWith("/blog/published-guide"))?.lastModified,
@@ -142,10 +220,9 @@ describe("sitemap dates and canonical URLs", () => {
     expect(
       first.some(
         (e) =>
-          e.url ===
-          new URL(`/buses/${broken.slug}`, "https://www.dhakabusroutes.com")
-            .href,
+          e.url === new URL(`/buses/${broken.slug}`, CANONICAL_ORIGIN).href,
       ),
     ).toBe(true);
+    expect(first.every((e) => e.url.startsWith(CANONICAL_ORIGIN))).toBe(true);
   });
 });

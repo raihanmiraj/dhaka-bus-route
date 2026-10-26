@@ -44,7 +44,7 @@ Back up GridFS `fs.files` and `fs.chunks` with the same snapshot as content, rev
 - Your trusted proxy must overwrite forwarding headers, reject spoofed client IP headers and enforce request body/rate limits. Add perimeter throttling for volumetric protection. Do not directly expose the origin behind an untrusted forwarding proxy.
 - Password recovery is owner-assisted: `npm run create-admin -- --reset-password` with the existing email and a new hidden password. Existing sessions are revoked. No nonfunctional email-reset control is shown.
 - CMS reads are dynamic and not placed in a shared Next data cache. Mutations explicitly invalidate public router paths, RSS and sitemap artifacts. Preview/admin responses use no-store and noindex.
-- The supplied canonical preference is `https://www.dhakabusroutes.com`. No automatic hostname redirect is installed because live read-only checks confirmed the existing hosting redirects: apex→www (308), with path/query preservation; the legacy Vercel API redirects to the www API (307→200). Recheck these behaviors after deployment. Preserve paths/query strings and keep the legacy Flutter API available with CORS.
+- The supplied canonical preference is `https://www.dhakabusroutes.com`. `vercel.json` permanently redirects apex `dhakabusroutes.com/*` → `https://www.dhakabusroutes.com/*` (path/query preserved). Vercel still upgrades HTTP→HTTPS first for bare HTTP requests (platform two-hop). Set production `SITE_URL=https://www.dhakabusroutes.com`. Recheck redirects after deployment and keep the legacy Flutter API available with CORS.
 
 ## Checks
 
@@ -70,9 +70,10 @@ Deploy application and dependency lockfile together. No existing route data migr
 
 - [ ] Rotate exposed database credentials.
 - [ ] Configure production secrets, restricted DB user and Atlas network access.
-- [ ] Verify www/apex/legacy redirects and Flutter API compatibility.
+- [ ] Set production `SITE_URL=https://www.dhakabusroutes.com` and confirm both apex and www hostnames have valid SSL in the Vercel project.
+- [ ] Verify apex→www (301/308), HTTP→HTTPS, path/query preservation, and Flutter API compatibility.
 - [ ] Approve setup/index creation and create real administrator/editor profiles.
-- [ ] Confirm the correct Search Console domain/URL-prefix property and inherited verification token.
-- [ ] Submit `/sitemap.xml` after the production CMS is configured.
+- [ ] Verify the Search Console Domain property for `dhakabusroutes.com` (covers www and non-www) or the HTTPS www URL-prefix property.
+- [ ] Submit `https://www.dhakabusroutes.com/sitemap.xml` after the production CMS is configured.
 - [ ] Inspect representative published pages, canonical URLs, article language, sitemap entries and robots directives.
 - [ ] Review source accuracy, aliases, operational direction and privacy/analytics consent requirements for the intended audience.

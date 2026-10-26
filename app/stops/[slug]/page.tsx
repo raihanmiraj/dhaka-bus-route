@@ -1,4 +1,4 @@
-import { stops, buses, slugify } from "@/lib/routes";
+import { stops, buses, curatedJourneys, resolveStop, slugify } from "@/lib/routes";
 import { metadata as meta, Breadcrumbs } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -20,7 +20,7 @@ export async function generateMetadata({
     b.routeStops.some((name) => slugify(name) === s.id),
   ).length;
   return meta(
-    `${s.name} bus stop`,
+    `${s.name} — Buses & Routes`,
     `Find ${count} listed bus ${count === 1 ? "route" : "routes"} serving ${s.name} in Dhaka. Browse route stops and maps, and plan your journey from this stop.`,
     `/stops/${s.id}`,
   );
@@ -44,6 +44,9 @@ export default async function Page({
       }
     });
   }
+  const relatedJourneys = curatedJourneys.filter(
+    (j) => j.from === s.id || j.to === s.id,
+  );
   return (
     <>
       <Breadcrumbs
@@ -74,6 +77,20 @@ export default async function Page({
           </li>
         ))}
       </ul>
+      {relatedJourneys.length > 0 && (
+        <>
+          <h2>Curated journeys</h2>
+          <ul>
+            {relatedJourneys.map((j) => (
+              <li key={j.slug}>
+                <Link href={`/routes/${j.slug}`}>
+                  {resolveStop(j.from).name} to {resolveStop(j.to).name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
       {adjacent.size > 0 && (
         <>
           <h2>Adjacent stops in listed routes</h2>

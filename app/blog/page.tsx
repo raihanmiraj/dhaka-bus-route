@@ -14,7 +14,7 @@ export async function generateMetadata({
   const q = await searchParams;
   return meta(
     "Guides & articles",
-    "Published articles to help you use Dhaka Bus Routes.",
+    "Practical Dhaka bus travel guides, stop tips and route explainers — English এবং বাংলা.",
     "/blog",
     q.page,
   );

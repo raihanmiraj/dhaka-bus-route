@@ -31,8 +31,10 @@ export default function Page() {
       <p>
         Search analytics use selected stop IDs and aggregate result counts. Do
         not submit personal travel histories or private contact details in
-        correction text. This site uses Google Analytics; it does not request
-        precise GPS locations. Full details are in the{" "}
+        correction text. This site uses Google Analytics. If you tap Use Current
+        Location, your browser may share GPS coordinates for that request only
+        so we can suggest the nearest listed stop — coordinates are not stored
+        as a travel history. Full details are in the{" "}
         <a href="/privacy">Privacy Policy</a> and{" "}
         <a href="/terms">Terms of Use</a>.
       </p>

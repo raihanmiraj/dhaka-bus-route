@@ -1,4 +1,5 @@
 import { routeData } from "@/server/busroute";
+import { normalize, slugify } from "./slug";
 export type Bus = {
   id: number;
   bus: string;
@@ -8,15 +9,7 @@ export type Bus = {
   service?: string;
   sources?: string[];
 };
-export const normalize = (s: string) =>
-  s
-    .normalize("NFKC")
-    .toLowerCase()
-    .replace(/[০-৯]/g, (c) => String(c.charCodeAt(0) - 2534))
-    .replace(/[^\p{L}\p{M}\p{N}\s]/gu, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-export const slugify = (s: string) => normalize(s).replace(/\s+/g, "-");
+export { normalize, slugify };
 export const buses = (routeData as Bus[]).map((b) => ({
   ...b,
   slug: `${slugify(b.bus.split(" Bus Route")[0])}-${b.id}`,

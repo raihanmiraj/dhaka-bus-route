@@ -4,6 +4,7 @@ import type {
   InputHTMLAttributes,
   ReactNode,
 } from "react";
+import { slugify } from "@/lib/slug";
 export function Button(p: ButtonHTMLAttributes<HTMLButtonElement>) {
   return <button {...p} className={`button ${p.className ?? ""}`} />;
 }
@@ -43,7 +44,9 @@ export function StopList({ stops }: { stops: string[] }) {
   return (
     <ol className="stop-list">
       {stops.map((s, i) => (
-        <li key={`${s}-${i}`}>{s}</li>
+        <li key={`${s}-${i}`}>
+          <Link href={`/stops/${slugify(s)}`}>{s}</Link>
+        </li>
       ))}
     </ol>
   );

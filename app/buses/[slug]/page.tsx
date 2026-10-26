@@ -1,10 +1,14 @@
-import { buses, slugify } from "@/lib/routes";
+import { buses, curatedJourneys, journeys, resolveStop, slugify } from "@/lib/routes";
 import { metadata as meta, Breadcrumbs } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { RouteOpened } from "@/components/tracking";
 import { RouteMap } from "@/components/route-map";
 import { decodeSlug } from "@/lib/url";
+
+function shortBusName(bus: string) {
+  return bus.split(" Bus Route")[0].split(" (")[0];
+}
 
 async function get(params: Promise<{ slug: string }>) {
   const { slug } = await params;
@@ -19,9 +23,11 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const b = await get(params);
+  const start = b.routeStops[0];
+  const end = b.routeStops.at(-1)!;
   return meta(
-    `${b.bus.split(" Bus Route")[0].split(" (")[0]}: ${b.routeStops[0]} to ${b.routeStops.at(-1)}`,
-    `${b.bus}: ${b.routeStops[0]} to ${b.routeStops.at(-1)}, with ${b.routeStops.length} listed stops. View the stop sequence and map; confirm service locally.`,
+    `${shortBusName(b.bus)} — ${start} to ${end}: Route, Stops & Map`,
+    `${b.bus}: ${start} to ${end}, with ${b.routeStops.length} listed stops. View the stop sequence and map; confirm service locally.`,
     `/buses/${b.slug}`,
   );
 }
@@ -31,6 +37,9 @@ export default async function Page({
   params: Promise<{ slug: string }>;
 }) {
   const b = await get(params);
+  const relatedJourneys = curatedJourneys.filter((j) =>
+    journeys(j.from, j.to).some((x) => x.bus.id === b.id),
+  );
   return (
     <>
       <Breadcrumbs
@@ -49,9 +58,10 @@ export default async function Page({
         {b.service ? <span className="badge">{b.service}</span> : null}
       </div>
       <p>
-        Stops below follow source order. Reverse operation, fares, timetables
-        and operating status are unverified. Use the map for an approximate
-        geographic overview.
+        Listed path from {b.routeStops[0]} to {b.routeStops.at(-1)}. Stops below
+        follow source order. Reverse operation, fares, timetables and operating
+        status are unverified. Use the map for an approximate geographic
+        overview.
       </p>
 
       <RouteMap stops={b.routeStops} title={b.bus} />
@@ -65,6 +75,25 @@ export default async function Page({
           </li>
         ))}
       </ol>
+
+      {relatedJourneys.length > 0 && (
+        <>
+          <h2>Related journey pages</h2>
+          <p>
+            This bus appears in the listed matches for these curated origin →
+            destination pages.
+          </p>
+          <ul>
+            {relatedJourneys.map((j) => (
+              <li key={j.slug}>
+                <Link href={`/routes/${j.slug}`}>
+                  {resolveStop(j.from).name} to {resolveStop(j.to).name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
 
       <h2>Source references</h2>
       <ul>

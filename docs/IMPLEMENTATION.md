@@ -14,7 +14,7 @@
 - Reproduced ASCII normalization stripping `মিরপুর ১০` and `Mirpur 1` matching `Mirpur 10`.
 - Confirmed exact suggestions excluded, reverse order assumed, segment preview starts at operator origin, fixed cap and stale swaps.
 - Existing dataset is 230,708 bytes of TypeScript; search will run server-side, with small suggestion responses.
-- No redirect configuration exists in next.config.ts. Live checks later confirmed apex→www; no application-level redirect was added.
+- No redirect configuration exists in next.config.ts. Hostname redirects live in `vercel.json` (apex→www).
 - No production environment values inspected. Local isolated MongoDB is available for testing.
 
 ## Progress
@@ -67,10 +67,17 @@ Published article text, headings, lists, tables, images, canonical and JSON-LD w
 
 ## Live read-only hostname observations
 
+Historical (pre-2026-10-26, www preferred):
+
 - `https://dhakabusroutes.com/` → **308** to `https://www.dhakabusroutes.com/` → **200**.
 - Apex `/api/bus-route?contract=probe` → **308**, preserving path and query.
 - `https://dhakabusroute.vercel.app/api/bus-route` → **307** to the www API → **200**, JSON and CORS headers present.
-- No hosting redirects were changed. Keep www in production `SITE_URL`; owner should recheck these behaviors after any approved deployment.
+
+Current policy (www preferred — matches live production):
+
+- Canonical origin: `https://www.dhakabusroutes.com`. Production `SITE_URL` must match (apex is normalized to www).
+- `vercel.json` permanently redirects `dhakabusroutes.com/:path*` → `https://www.dhakabusroutes.com/:path*`.
+- Re-verify all four protocol/hostname combinations after deployment.
 
 ## Boundaries and remaining owner work
 

@@ -17,12 +17,12 @@ import {
   FiSearch,
 } from "react-icons/fi";
 
-const homeMetadata = pageMeta(
-  "Dhaka Bus Route Finder — Search Local Bus Routes & Stops",
-  "Find Dhaka bus routes by boarding stop and destination. Free local bus route finder with maps — Mirpur, Farmgate, Motijheel and more. English ও বাংলা.",
-  "/",
-);
-export const dynamic = "force-dynamic";
+const homeTitle =
+  "Dhaka Bus Route Finder — Search Local Bus Routes & Stops";
+const homeDescription =
+  "Find Dhaka bus routes by boarding stop and destination. Free local bus route finder with maps — Mirpur, Farmgate, Motijheel and more. English ও বাংলা.";
+const homeMetadata = pageMeta(homeTitle, homeDescription, "/");
+
 export async function generateMetadata({
   searchParams,
 }: {
@@ -31,6 +31,8 @@ export async function generateMetadata({
   const q = await searchParams;
   return {
     ...homeMetadata,
+    // Prefer absolute so the layout title template does not append a second brand suffix.
+    title: { absolute: homeTitle },
     robots: { index: !Object.keys(q).length, follow: true },
   };
 }
@@ -61,7 +63,7 @@ export default function Home() {
         intro={
           <>
             <p className="hero-bn" lang="bn">
-              ঢাকা শহরে বাস রুট, স্টপ এবং সময়সূচী খুঁজুন
+              ঢাকা শহরে বাস রুট ও স্টপ খুঁজুন
             </p>
             <h1 id="home-title">Dhaka bus route finder</h1>
             <p className="hero-lead">
@@ -236,25 +238,17 @@ export default function Home() {
               "@type": "WebSite",
               name: "Dhaka Bus Routes",
               url: siteUrl(),
-              potentialAction: {
-                "@type": "SearchAction",
-                target: {
-                  "@type": "EntryPoint",
-                  urlTemplate: `${siteUrl()}/?from={from}&to={to}#search`,
-                },
-                "query-input": [
-                  {
-                    "@type": "PropertyValueSpecification",
-                    valueRequired: true,
-                    valueName: "from",
-                  },
-                  {
-                    "@type": "PropertyValueSpecification",
-                    valueRequired: true,
-                    valueName: "to",
-                  },
-                ],
-              },
+              description: homeDescription,
+              inLanguage: ["en", "bn"],
+              publisher: { "@id": `${siteUrl()}/#organization` },
+            },
+            {
+              "@type": "Organization",
+              "@id": `${siteUrl()}/#organization`,
+              name: "Dhaka Bus Routes",
+              url: siteUrl(),
+              logo: `${siteUrl()}/images/dhaka-bus-route-logo-transparent-blue-header.png`,
+              sameAs: ["https://raihanmiraj.com/"],
             },
             {
               "@type": "FAQPage",

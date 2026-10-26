@@ -4,7 +4,7 @@ import { BusDirectory } from "@/components/bus-directory";
 
 export const metadata = meta(
   "Bus directory — Search Dhaka bus routes",
-  "Search and browse source-listed Dhaka bus routes by bus name or stop.",
+  `Search and browse ${buses.length} source-listed Dhaka bus routes by bus name or stop. Open any service for its stop sequence and map.`,
   "/buses",
 );
 

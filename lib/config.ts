@@ -1,7 +1,11 @@
 import "server-only";
 import { z } from "zod";
+
+/** Preferred public origin — HTTPS www (matches live production + task requirement). */
+export const CANONICAL_ORIGIN = "https://www.dhakabusroutes.com";
+
 export function siteUrl() {
-  const raw = process.env.SITE_URL || "https://www.dhakabusroutes.com";
+  const raw = process.env.SITE_URL || CANONICAL_ORIGIN;
   const url = new URL(raw);
   if (
     !["http:", "https:"].includes(url.protocol) ||
@@ -17,6 +21,9 @@ export function siteUrl() {
     url.hostname !== "127.0.0.1"
   )
     throw new Error("SITE_URL must use HTTPS");
+  // Normalize apex → www so sitemap/canonicals stay on the preferred host.
+  if (url.hostname === "dhakabusroutes.com")
+    url.hostname = "www.dhakabusroutes.com";
   return url.origin;
 }
 export function databaseConfig() {

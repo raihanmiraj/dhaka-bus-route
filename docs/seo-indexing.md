@@ -1,6 +1,16 @@
 # SEO and indexing maintenance
 
-Audit and fixes: 12 October 2026 (Asia/Dhaka).
+Audit and fixes: 12 October 2026 (Asia/Dhaka).  
+Follow-up: 26 October 2026 — see `SEO_AUDIT.md`, `SEO_IMPLEMENTATION.md`, `SEO_TEST_RESULTS.md`.
+
+Preferred canonical origin: **https://www.dhakabusroutes.com** (confirmed live: robots Host, homepage canonical, apex→www 308).
+
+## Canonical domain policy
+
+- Public canonical origin: `https://www.dhakabusroutes.com`
+- Production `SITE_URL` must be the www origin (apex values are normalized to www by `siteUrl()`).
+- `metadataBase`, relative canonicals, Open Graph URLs, JSON-LD, sitemap, and robots derive from `siteUrl()`.
+- `vercel.json` permanently redirects `dhakabusroutes.com/:path*` → `https://www.dhakabusroutes.com/:path*`.
 
 ## Resolved findings
 
@@ -12,22 +22,20 @@ Audit and fixes: 12 October 2026 (Asia/Dhaka).
 - Stop pages show bus endpoints and adjacent source-listed stops, adding useful route-specific detail and internal links without claiming verified locations or reverse operation.
 - Author pages with empty biographies use a descriptive article-archive introduction and meta description.
 - Blog Open Graph descriptions fall back to the excerpt when no SEO description is set.
+- 26 Oct 2026: Bengali schedule wording fixed; SearchAction removed; OG siteName/image alt; journey/bus/stop internal links; apex→www redirect in repo; content accuracy on data-sources GPS.
 
 ## Validation
 
-- `npm test`: 27 passed; 13 database/server integration tests skipped because isolated local database credentials were not configured. Tests cover every bus/stop metadata lookup, encoded Unicode slugs, metadata uniqueness, broken internal stop references, pagination and sitemap dates/images.
-- `npm run typecheck`, `npm run lint`, `npm run build`: passed.
-- HTTP checks against the local production build: 527 non-database public pages and bus pagination URLs returned 200, with a title, description, matching canonical, one H1 and no noindex. A nonexistent bus returned 404.
-- The earlier live audit's tunnel/connection errors are not origin HTTP errors; they do not establish that Googlebot is blocked.
+- `npm test`, `npm run typecheck`, `npm run lint`, `npm run build`: see `SEO_TEST_RESULTS.md`.
+- Local smoke checks covered titles, descriptions, canonicals, robots, H1, OG/Twitter, JSON-LD, sitemap, and 404 behavior.
 
 ## Search Console follow-up
 
-1. Keep `SITE_URL=https://www.dhakabusroutes.com` in production. Verify the domain property or the exact HTTPS www URL-prefix property.
-2. Submit `https://www.dhakabusroutes.com/sitemap.xml` and check the Sitemaps report for successful processing.
-3. Inspect the repaired bus URLs and representative bus, stop, journey and blog pages. Compare the declared canonical with Google's selected canonical and run the live test.
-4. Request indexing for the three repaired URLs and important new/updated articles. Do not repeatedly request indexing for every dataset page.
-5. Monitor Page indexing for server errors, soft 404s, duplicate canonical decisions and "Crawled - currently not indexed". Sitemap inclusion and valid metadata cannot guarantee indexing or ranking.
-6. Maintain accurate routes, substantive unique article content, publication dates, author information and working images. Expand or consolidate pages only on verified data; similar stop spellings alone are not evidence that two stops are identical.
-7. Use Search Console Core Web Vitals for actual field performance. A successful build or local response-time check is not a substitute for field metrics or Google's structured-data validation.
+1. Keep `SITE_URL=https://www.dhakabusroutes.com` in production. Prefer Domain property or HTTPS www URL-prefix property.
+2. Submit `https://www.dhakabusroutes.com/sitemap.xml`.
+3. Inspect representative www URLs; compare declared vs Google-selected canonical.
+4. Request indexing sparingly for important updated URLs.
+5. Monitor Page indexing for soft 404s, duplicates, and “Crawled - currently not indexed”.
+6. Use Search Console Core Web Vitals for field performance.
 
 Reference: https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap

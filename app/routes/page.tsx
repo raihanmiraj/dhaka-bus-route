@@ -2,8 +2,8 @@ import { curatedJourneys, resolveStop } from "@/lib/routes";
 import { metadata as meta, Breadcrumbs } from "@/lib/seo";
 import Link from "next/link";
 export const metadata = meta(
-  "Journey routes",
-  "A small selection of journeys supported by the current route dataset.",
+  "Journey routes — Popular Dhaka bus trips",
+  "Compare source-listed direct buses for popular Dhaka origin–destination pairs. Ranked by stop count, not travel time.",
   "/routes",
 );
 export default function Page() {

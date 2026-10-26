@@ -158,6 +158,17 @@ export default async function Page({
             name: p.authorName,
             url: siteUrl() + `/authors/${p.authorSlug}`,
           },
+          publisher: {
+            "@type": "Organization",
+            name: "Dhaka Bus Routes",
+            url: siteUrl(),
+            logo: {
+              "@type": "ImageObject",
+              url:
+                siteUrl() +
+                "/images/dhaka-bus-route-logo-transparent-blue-header.png",
+            },
+          },
           image: p.featuredImage
             ? siteUrl() + `/media/${p.featuredImage.mediaId}`
             : undefined,

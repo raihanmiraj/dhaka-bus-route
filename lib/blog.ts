@@ -46,6 +46,21 @@ export async function articleMetadata(slug: string): Promise<Metadata> {
     ? (await publicPosts({ "published.translationGroup": p.translationGroup }))
         .items
     : [];
+  const title = p.seoTitle || p.title;
+  const description = p.seoDescription || p.excerpt;
+  const imageUrl = p.socialImageId
+    ? `/media/${p.socialImageId}`
+    : p.featuredImage
+      ? `/media/${p.featuredImage.mediaId}`
+      : undefined;
+  const images = imageUrl
+    ? [
+        {
+          url: imageUrl,
+          alt: p.featuredImage?.alt || title,
+        },
+      ]
+    : [];
   return {
     ...base,
     alternates: {
@@ -63,28 +78,21 @@ export async function articleMetadata(slug: string): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      title: p.seoTitle || p.title,
-      description: p.seoDescription || p.excerpt,
-      images: p.socialImageId
-        ? [`/media/${p.socialImageId}`]
-        : p.featuredImage
-          ? [`/media/${p.featuredImage.mediaId}`]
-          : [],
+      title,
+      description,
+      images,
     },
     openGraph: {
-      title: p.seoTitle || p.title,
-      description: p.seoDescription || p.excerpt,
+      title,
+      description,
       url: `/blog/${p.slug}`,
       type: "article",
+      siteName: "Dhaka Bus Routes",
       publishedTime: p.firstPublishedAt.toISOString(),
       modifiedTime: p.publicModifiedAt.toISOString(),
       authors: [p.authorName],
       locale: p.locale === "bn" ? "bn_BD" : "en_US",
-      images: p.socialImageId
-        ? [`/media/${p.socialImageId}`]
-        : p.featuredImage
-          ? [`/media/${p.featuredImage.mediaId}`]
-          : [],
+      images,
     },
   };
 }

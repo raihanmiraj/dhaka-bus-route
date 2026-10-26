@@ -18,17 +18,28 @@ export const metadata: Metadata = {
     description,
     url: `/blog/${slug}`,
     type: "article",
+    siteName: "Dhaka Bus Routes",
     locale: "bn_BD",
     publishedTime: featuredGuide.publishedAt,
     modifiedTime: featuredGuide.modifiedAt,
     authors: ["Raihan Miraj"],
-    images: [featuredGuide.image],
+    images: [
+      {
+        url: featuredGuide.image,
+        alt: "ঢাকার বাস রুট, স্টপেজ এবং শহরের গণপরিবহন গাইড",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title,
     description,
-    images: [featuredGuide.image],
+    images: [
+      {
+        url: featuredGuide.image,
+        alt: "ঢাকার বাস রুট, স্টপেজ এবং শহরের গণপরিবহন গাইড",
+      },
+    ],
   },
 };
 
@@ -252,7 +263,7 @@ export default function Page() {
 
         <h2>Sources</h2>
         <ul>
-          <li><a href="https://dhakabusroutes.com">Dhaka Bus Routes</a></li>
+          <li><a href="https://dhakabusroutes.com/">Dhaka Bus Routes</a></li>
         </ul>
       </div>
 
@@ -272,6 +283,17 @@ export default function Page() {
             "@type": "Person",
             name: "Raihan Miraj",
             url: siteUrl() + "/authors/raihan-miraj",
+          },
+          publisher: {
+            "@type": "Organization",
+            name: "Dhaka Bus Routes",
+            url: siteUrl(),
+            logo: {
+              "@type": "ImageObject",
+              url:
+                siteUrl() +
+                "/images/dhaka-bus-route-logo-transparent-blue-header.png",
+            },
           },
           image: siteUrl() + featuredGuide.image,
         }}

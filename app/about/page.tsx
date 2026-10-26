@@ -1,13 +1,18 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { metadata as meta, JsonLd } from "@/lib/seo";
 import { siteUrl } from "@/lib/config";
 
-export const metadata = meta(
-  "About",
+const aboutMeta = meta(
+  "About Dhaka Bus Routes",
   "Learn about Dhaka Bus Routes, built by Raihan Miraj to help passengers find source-listed bus connections across Dhaka.",
   "/about",
 );
+export const metadata: Metadata = {
+  ...aboutMeta,
+  title: { absolute: "About Dhaka Bus Routes" },
+};
 
 export default function Page() {
   const base = siteUrl();
